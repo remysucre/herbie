@@ -487,6 +487,11 @@
                 (+ (fma a b (- (* d c)))
                    (fma (- d) c (* d c)))])
 
+(define-ruleset overflow-expand (overflow)
+  [ratio-in-bound (/ (- a b) (- c d))
+                  (/ (- (/ a 2) (/ b 2))
+                     (- (/ c 2) (/ d 2)))])
+
 (define-ruleset bool-reduce (bools simplify fp-safe)
   #:type ([a bool] [b bool])
   [not-true     (not TRUE)       FALSE]
