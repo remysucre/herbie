@@ -161,6 +161,14 @@
   (for/fold ([h hash]) ([assoc assocs])
     (hash-set h (car assoc) (cdr assoc))))
 
+;; This defines what "smallest" means to extract-smallest.
+;; It is crucial that this is monotonic in subexpression size.
+(define (expression-size expr)
+  (match expr
+    [(list op args ...)
+     (+ 1 (apply + (map expression-size args)))]
+    [_ 1]))
+
 (define (extract-smallest eg)
   (define (resolve en ens->exprs)
     (let ([possible-resolutions
@@ -173,8 +181,9 @@
 		     (if (andmap identity (cdr expr))
 			 expr
 			 #f)))))])
-      (if (null? possible-resolutions) #f
-	  (argmin expression-cost possible-resolutions))))
+      (if (null? possible-resolutions)
+          #f
+          (argmin expression-size possible-resolutions))))
   (define (pass ens ens->exprs)
     (let-values ([(pairs left)
 		  (partition pair?

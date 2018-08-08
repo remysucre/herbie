@@ -11,7 +11,7 @@
          location? expr?
          location-do location-get
          eval-prog eval-const-expr
-         compile expression-cost program-cost
+         compile
          free-variables replace-expression
          desugar-program)
 
@@ -137,10 +137,7 @@
   (check-equal? (eval-const-expr 'PI) pi)
   (check-equal? (eval-const-expr '(exp 2)) (exp 2)))
 
-;; To compute the cost of a program, we could use the tree as a
-;; whole, but this is inaccurate if the program has many common
-;; subexpressions.  So, we compile the program to a register machine
-;; and use that to estimate the cost.
+;; We eliminate common subexpressions when we execute programs
 
 (define (compile expr)
   (define assignments '())
@@ -161,15 +158,6 @@
 
   (let ([reg (compile-one expr)])
     `(let* ,(reverse assignments) ,reg)))
-
-(define (program-cost prog)
-  (expression-cost (program-body prog)))
-
-(define (expression-cost expr)
-  (for/sum ([step (second (compile expr))])
-    (if (list? (second step))
-        (operator-info (caadr step) 'cost)
-        1)))
 
 (define/contract (replace-expression haystack needle needle*)
   (-> expr? expr? expr? expr?)

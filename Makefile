@@ -45,6 +45,3 @@ loc:
 deploy:
 	cd $(shell ~/uwplse/getdir) && git pull
 
-cost: infra/cost.c
-	$(CC) -O0 $^ -lm -o $@
-
