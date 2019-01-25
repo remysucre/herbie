@@ -19,22 +19,44 @@
 
 (define (merge . bindings)
   ;; (list bindings) -> binding
-  (foldl merge2 '() bindings))
+(begin 
+  (foldl merge2 '() bindings)))
 
 (define (merge2 binding1 binding2)
   ;; binding binding -> binding
+(begin 
   (if (and binding1 binding2)
       (let loop ([acc binding1] [rest binding2])
 	(if (null? rest)
 	    acc
 	    (let* ([curr (car rest)]
 		   [lookup (assoc (car curr) acc)])
-	      (if lookup
-		  (if (equal? (cdr lookup) (cdr curr))
-		      (loop acc (cdr rest))
-		      #f)
-		  (loop (cons curr acc) (cdr rest))))))
-      #f))
+	      (begin  (if lookup (begin 
+		   (if (newmatch (cdr lookup) (cdr curr))
+                     (if (bothnot (cdr lookup) (cdr curr))
+(loop (cons curr acc) (cdr rest))
+		      (begin (loop acc (cdr rest))))
+		      #f))
+		  (loop (consnot curr acc) (cdr rest)))))))
+      #f)))
+
+(define (bothnot a b)
+  (match (cons a b)[(cons (cons 'not x) (cons 'not y)) #t]
+[ other #f]))
+
+(define (consnot c ac) 
+  (begin (match (cdr c) [(cons 'not x) ac][x (cons c ac)])))
+
+(define (denot x)
+  (match x [(cons 'not y) y][y y]))
+
+(define (newmatch a b)
+(begin 
+  (match (cons a b) 
+   [(cons (cons 'not ab) (cons 'not bb)) #t]
+   [(cons (cons 'not ab) bb) (not (equal? ab bb))]
+   [(cons ab (cons 'not bb)) (not (equal? ab bb))]
+   [(cons ab bb) (equal? ab bb)])))
 
 (define (match-e pat e)
   (cond
@@ -47,6 +69,8 @@
        '()))]
    [(variable? pat)
     `(((,pat . ,e)))]
+   [(equal? (car pat) 'isnt)
+    `(((,(cadr pat) .  ,e) (,(caddr pat) . (not . ,e))))]
    [(list? pat)
     (apply append
 	   (for/list ([var (in-set (enode-vars e))])
