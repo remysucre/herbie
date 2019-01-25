@@ -102,14 +102,17 @@
   [unsub-neg.c         (+.c a (neg.c b))           (-.c a b)])
 
 (define-ruleset radistributivity (arithmetic simplify)
-  #:type ([a rplan] [b rplan] [c rplan])
+  #:type ([a rplan] [b rplan] [c rplan] [i attr] [j attr])
   [radistribute-lft-in      (r* a (r+ b c))         (r+ (r* a b) (r* a c))]
   [radistribute-lft-out     (r+ (r* a b) (r* a c)) (r* a (r+ b c))         ]
   [raggdist      (agg i (r+ a b))         (r+ (agg i a) (agg i b))]
+  [raggdist-      (r+ (agg i a) (agg i b)) (agg i (r+ a b))         ]
   [rcond      (r* a (agg i b))         (agg i (r* a b))]
+  [rcond-      (agg i (r* a b)) (r* a (agg i b))         ]
   [rass      (r+ a (r+ b c))         (r+ (r+ a b) c)]
   [rass*      (r* a (r* b c))         (r* (r* a b) c)]
-  [raggdist-     (r+ (agg i a) (agg i b)) (agg i (r+ a b))         ])
+  [raggdist-     (r+ (agg i a) (agg i b)) (agg i (r+ a b))         ]
+  [raggorder     (agg i (agg j a)) (agg j (agg i a))         ])
 ; Distributivity
 (define-ruleset distributivity (arithmetic simplify)
   #:type ([a real] [b real] [c real])
