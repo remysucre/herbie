@@ -106,7 +106,9 @@
   [radistribute-lft-in      (r* a (r+ b c))         (r+ (r* a b) (r* a c))]
   [radistribute-lft-out     (r+ (r* a b) (r* a c)) (r* a (r+ b c))         ]
   [raggdist      (agg i (r+ a b))         (r+ (agg i a) (agg i b))]
-  [rtry          (r+ a (not a))         a]
+  [rcond      (r* a (agg i b))         (agg i (r* a b))]
+  [rass      (r+ a (r+ b c))         (r+ (r+ a b) c)]
+  [rass*      (r* a (r* b c))         (r* (r* a b) c)]
   [raggdist-     (r+ (agg i a) (agg i b)) (agg i (r+ a b))         ])
 ; Distributivity
 (define-ruleset distributivity (arithmetic simplify)

@@ -1,0 +1,3 @@
+(define g (mk-egraph '(agg a (agg c (r* (r+ (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))) (r+ (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))) )))))
+
+(define g (mk-egraph '(r+ (agg a (agg c (r+ (r* (b+ x (: a c)) (b+ x (: a c))) (r+ (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))(r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))) (agg b (agg b (r* (agg a (r* (b+ u (: a b))(b+ u (: a b)))) (agg c (r* (b+ v (: c b))(b+ v (: c b)))))) ))))
