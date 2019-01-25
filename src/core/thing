@@ -1,0 +1,17 @@
+digraph {
+node0[label="NODE 0"]
+node0var0[label="a",shape=box,color=blue]
+node0 -> node0var0[style=dashed]
+node1[label="NODE 1"]
+node1var0[label="b",shape=box,color=blue]
+node1 -> node1var0[style=dashed]
+node2[label="NODE 2"]
+node2var0[label="r+",shape=box,color=blue]
+node2 -> node2var0[style=dashed]
+node2var0 -> node0[tailport=sw]
+node2var0 -> node1[tailport=se]
+node2var1[label="r+",shape=box,color=blue]
+node2 -> node2var1[style=dashed]
+node2var1 -> node1[tailport=sw]
+node2var1 -> node0[tailport=se]
+}
