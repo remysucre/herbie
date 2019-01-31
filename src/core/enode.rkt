@@ -66,6 +66,7 @@
 
 ; Get the type for an enode or an enode expr
 (define (type-of-enode-expr expr)
+(begin (print expr)
   (match expr
     [(? real?) 'real]
     [(? complex?) 'complex]
@@ -75,7 +76,7 @@
      (enode-type ift)]
     [(list op ens ...)
      ;; Assumes single return type for any function
-     (second (first (first (hash-values (operator-info op 'type)))))]))
+     (second (first (first (hash-values (operator-info op 'type)))))])))
 
 (module+ test
   (require rackunit)
@@ -184,7 +185,7 @@
                         en]
                     [leader (set-enode-children! en (append (cdr rest-children) (list leader) done-children))
                             en]))))))))    
-									 
+
 ;; Apply an f to every enode in a pack.
 (define (for-pack! f en)
   (let loop! ([en (pack-leader en)])
@@ -195,10 +196,18 @@
                                   (map enode-cvars (enode-children en))))
       en)))
 
+#;(define (rrename-enode eg en i)
+  (let [(expr (enode-expr en)) (ii (gensym i))]
+  (match expr
+    [(? symbol?) (if (equal? expr i) (mk-enode! eg ii) (mk-enode! eg i))]
+    [(list op ens ...) (begin (mk-enode! eg (list op (map (lambda (e) (rrename-enode eg e i)) ens))) 
+                              (map (lambda (c) rrename-enode eg c i) (enode-children en)))]
+    [_ en])))
+
 ;; Updates the expressions in the pack, using a specified updater.
 (define (update-vars! en updater)
   (for-pack! (λ (inner-en)
-               (set-enode-expr! inner-en (updater (enode-expr inner-en))))
+               (set-enode-expr! inner-en (updater (begin (print (enode-expr inner-en))(enode-expr inner-en)))))
              en))
 
 (define (check-valid-enode en #:loc [location 'check-valid-enode])

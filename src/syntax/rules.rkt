@@ -107,12 +107,13 @@
   ;[radistribute-lft-out     (r+ (r* a b) (r* a c)) (r* a (r+ b c))         ]
   ;[raggdist      (agg i (r+ a b))         (r+ (agg i a) (agg i b))]
   ;[raggdist-      (r+ (agg i a) (agg i b)) (agg i (r+ a b))         ]
-  [rcond      (r* (b+ a (: (isnt k i) (isnt l i))) (agg i b)) (agg i (r* (b+ a (: k l )) b))]
-  [rcond-     (agg i (r* (b+ a (: (isnt k i) (isnt l i) )) b)) (r* (b+ a (: k  l )) (agg i b)) ]
+  [raggrename      (r* (b+ a (: i l)) (agg i b)) (rn b i)])
+  ;[rcond      (r* (b+ a (: (isnt k i) (isnt l i))) (agg i b)) (agg i (r* (b+ a (: k l )) b))]
+  ;[rcond-     (agg i (r* (b+ a (: (isnt k i) (isnt l i) )) b)) (r* (b+ a (: k  l )) (agg i b)) ]
   ;[rass      (r+ a (r+ b c))         (r+ (r+ a b) c)]
   ;[rass*      (r* a (r* b c))         (r* (r* a b) c)]
   ;[raggdist-     (r+ (agg i a) (agg i b)) (agg i (r+ a b))         ]
-  [raggorder     (agg i (agg j a)) (agg j (agg i a))         ])
+  ;[raggorder     (agg i (agg j a)) (agg j (agg i a))         ])
 ; Distributivity
 (define-ruleset distributivity (arithmetic simplify)
   #:type ([a real] [b real] [c real])
