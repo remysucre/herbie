@@ -56,8 +56,8 @@
 
 (define-ruleset rcommutativity (arithmetic simplify)
   #:type ([a rplan] [b rplan])
-  [racommutative     (r+ a b)               (r+ b a)];(r+ b a)]
-  [rtcommutative     (r* a b)               (r* b a)]);(r* b a)])
+  #;[racommutative     (r+ a b)               (r+ b a)];(r+ b a)]
+  #;[rtcommutative     (r* a b)               (r* b a)]);(r* b a)])
 ; Associativity
 (define-ruleset associativity (arithmetic simplify)
   #:type ([a real] [b real] [c real])

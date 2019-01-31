@@ -84,7 +84,7 @@
 			[en ens]
                         #:when (or (not (variable? (rule-input rl)))
                                    (equal? (dict-ref (rule-itypes rl) (rule-input rl)) (enode-type en))))
-	      (if #f #;(rule-applied? en rl) '()
+	      (if (rule-applied? en rl) '()
 		  (let ([bindings (match-e (rule-input rl) en)])
 		    (if (null? bindings) '()
 			(list* rl en bindings)))))))
