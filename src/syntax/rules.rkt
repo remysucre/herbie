@@ -54,10 +54,6 @@
   [+.c-commutative     (+.c a b)               (+.c b a)]
   [*.c-commutative     (*.c a b)               (*.c b a)])
 
-(define-ruleset rcommutativity (arithmetic simplify)
-  #:type ([a rplan] [b rplan])
-  #;[racommutative     (r+ a b)               (r+ b a)];(r+ b a)]
-  #;[rtcommutative     (r* a b)               (r* b a)]);(r* b a)])
 ; Associativity
 (define-ruleset associativity (arithmetic simplify)
   #:type ([a real] [b real] [c real])
@@ -106,6 +102,8 @@
   ;[radistribute-lft-in      (r* a (r+ b c))         (r+ (r* a b) (r* a c))]
   ;[radistribute-lft-out     (r+ (r* a b) (r* a c)) (r* a (r+ b c))         ]
   ;[raggdist      (agg i (r+ a b))         (r+ (agg i a) (agg i b))]
+  ;[racommutative     (r+ a b)               (r+ b a)];(r+ b a)]
+  ;[rtcommutative     (r* a b)               (r* b a)]);(r* b a)]
   ;[raggdist-      (r+ (agg i a) (agg i b)) (agg i (r+ a b))         ]
   [raggrename      (r* (b+ a (: i l)) (agg i b)) (rn b i)])
   ;[rcond      (r* (b+ a (: (isnt k i) (isnt l i))) (agg i b)) (agg i (r* (b+ a (: k l )) b))]
