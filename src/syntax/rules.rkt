@@ -98,20 +98,26 @@
   [unsub-neg.c         (+.c a (neg.c b))           (-.c a b)])
 
 (define-ruleset radistributivity (arithmetic simplify)
-  #:type ([a rplan] [b rplan] [c rplan] [i attr] [j attr])
-  ;[radistribute-lft-in      (r* a (r+ b c))         (r+ (r* a b) (r* a c))]
-  ;[radistribute-lft-out     (r+ (r* a b) (r* a c)) (r* a (r+ b c))         ]
-  ;[raggdist      (agg i (r+ a b))         (r+ (agg i a) (agg i b))]
-  ;[racommutative     (r+ a b)               (r+ b a)];(r+ b a)]
-  ;[rtcommutative     (r* a b)               (r* b a)]);(r* b a)]
-  ;[raggdist-      (r+ (agg i a) (agg i b)) (agg i (r+ a b))         ]
-  [raggrename      (r* (b+ a (: i l)) (agg i b)) (rn b i)])
-  ;[rcond      (r* (b+ a (: (isnt k i) (isnt l i))) (agg i b)) (agg i (r* (b+ a (: k l )) b))]
-  ;[rcond-     (agg i (r* (b+ a (: (isnt k i) (isnt l i) )) b)) (r* (b+ a (: k  l )) (agg i b)) ]
-  ;[rass      (r+ a (r+ b c))         (r+ (r+ a b) c)]
-  ;[rass*      (r* a (r* b c))         (r* (r* a b) c)]
-  ;[raggdist-     (r+ (agg i a) (agg i b)) (agg i (r+ a b))         ]
-  ;[raggorder     (agg i (agg j a)) (agg j (agg i a))         ])
+  #:type ([a rplan] [b rplan] [c rplan] [i attr] [j attr] [k attr] [l attr])
+  [radistribute  (r* a (r+ b c)) (r+ (r* a b) (r* a c))]
+  [radistribute- (r+ (r* a b) (r* a c)) (r* a (r+ b c))]
+  [raggdist      (agg i (r+ a b)) (r+ (agg i a) (agg i b))]
+  [raggdist-     (r+ (agg i a) (agg i b)) (agg i (r+ a b))]
+  [racommutative (r+ a b) (r+ b a)]
+  [rtcommutative (r* a b) (r* b a)]
+  [raggcond1     (r* (agg i a) (agg i b)) (agg i (r* (agg i a) b))]
+  [raggcond1-    (agg i (r* (agg i a) b)) (r* (agg i a) (agg i b))]
+  [raggcond2     (r* (b+ a (: (isnt k i) (isnt l i))) (agg i b)) (agg i (r* (b+ a (: k l )) b))]
+  [raggcond2-    (agg i (r* (b+ a (: (isnt k i) (isnt l i))) b)) (r* (b+ a (: k l )) (agg i b))]
+  [raggrename    (r* (b+ a (: i l)) (agg i b)) (rn b i)]
+  [rass          (r+ a (r+ b c)) (r+ (r+ a b) c)]
+  [rass*         (r* a (r* b c)) (r* (r* a b) c)]
+  [raggorder     (agg i (agg j a)) (agg j (agg i a))]
+  [foundit! (r+ (agg a (agg c (r+ (r* (b+ x (: a c)) (b+ x (: a c))) (r+ (r* (b+
+x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))(r* (b+ x (: a c)) (agg b
+(r* (b+ u (: a b)) (b+ v (: c b))))))))) (agg b (agg d (r* (agg a (r* (b+ u (: a
+b))(b+ u (: a d)))) (agg c (r* (b+ v (: c d))(b+ v (: c b)))))) )) (foundit)]
+)
 ; Distributivity
 (define-ruleset distributivity (arithmetic simplify)
   #:type ([a real] [b real] [c real])

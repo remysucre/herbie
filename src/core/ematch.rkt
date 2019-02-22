@@ -99,6 +99,7 @@
      (error "WTF" pat)]))
 
 (define (rename? p) (equal? (car p) 'rn))
+(define (foundit? p) (equal? (car p) 'foundit))
 
 (define (substitute-e eg pat bindings)
   (cond
@@ -107,6 +108,7 @@
     [(variable? pat)
      (let ([binden (cdr (assoc pat bindings))])
        binden)]
+    [(foundit? pat) (print "DAWWG")]
     [(rename? pat)
      (let* ([binden (cdr (assoc (cadr pat) bindings))]
             [irn (enode-expr (cdr (assoc (caddr pat) bindings)))] ; index to rename
