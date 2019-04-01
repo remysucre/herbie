@@ -103,17 +103,20 @@
   [radistribute- (r+ (r* a b) (r* a c)) (r* a (r+ b c))]
   [raggdist      (agg i (r+ a b)) (r+ (agg i a) (agg i b))]
   [raggdist-     (r+ (agg i a) (agg i b)) (agg i (r+ a b))]
-  [racommutative (r+ a b) (r+ b a)]
-  [rtcommutative (r* a b) (r* b a)]
+  ; [racommutative (r+ a b) (r+ b a)]
+  ; [rtcommutative (r* a b) (r* b a)]
   [raggcond1     (r* (agg i a) (agg i b)) (agg i (r* (agg i a) b))]
   [raggcond1-    (agg i (r* (agg i a) b)) (r* (agg i a) (agg i b))]
   [raggcond2     (r* (b+ a (: (isnt k i) (isnt l i))) (agg i b)) (agg i (r* (b+ a (: k l )) b))]
   [raggcond2-    (agg i (r* (b+ a (: (isnt k i) (isnt l i))) b)) (r* (b+ a (: k l )) (agg i b))]
   [raggrename    (r* (b+ a (: i l)) (agg i b)) (rn b i)]
+  [raggrename2   (r* (b+ a (: i l)) (agg l b)) (rn b l)]
+  ; (r* (b+ a (: i l)) (agg l b)) (r* (b+ a (: i l)) (agg l b))
   [rass          (r+ a (r+ b c)) (r+ (r+ a b) c)]
   [rass*         (r* a (r* b c)) (r* (r* a b) c)]
   [raggorder     (agg i (agg j a)) (agg j (agg i a))]
-  [foundit! (r+ (agg a (agg c (r+ (r* (b+ x (: a c)) (b+ x (: a c))) (r+ (r* (b+
+  [foundit! (r+ (r+ (agg a (agg c x)) (agg a (agg c y))) (r+ (agg a (agg c y))(agg a (agg c z)))) (foundit)]
+  #;[foundit! (r+ (agg a (agg c (r+ (r* (b+ x (: a c)) (b+ x (: a c))) (r+ (r* (b+
 x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))(r* (b+ x (: a c)) (agg b
 (r* (b+ u (: a b)) (b+ v (: c b))))))))) (agg b (agg d (r* (agg a (r* (b+ u (: a
 b))(b+ u (: a d)))) (agg c (r* (b+ v (: c d))(b+ v (: c b)))))) )) (foundit)]

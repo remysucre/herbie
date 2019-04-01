@@ -102,14 +102,16 @@
 (define (foundit? p) (equal? (car p) 'foundit))
 
 (define (substitute-e eg pat bindings)
+  (println "in sub")
   (cond
-    [(constant? pat)
+    [(constant? pat) (println "in const")
      (mk-enode! eg pat)]
-    [(variable? pat)
-     (let ([binden (cdr (assoc pat bindings))])
+    [(variable? pat) (println "in var")
+     (let ([binden (cdr (assoc pat bindings))]) (println "got it")
        binden)]
     [(foundit? pat) (print "DAWWG")]
     [(rename? pat)
+     (println "rename")
      (let* ([binden (cdr (assoc (cadr pat) bindings))]
             [irn (enode-expr (cdr (assoc (caddr pat) bindings)))] ; index to rename
             [ii (gensym irn)]) ; fresh index name
@@ -118,18 +120,20 @@
                                                (substitute-e eg '(b+ a (: i l)) bindings)
                                                (rrename-enode eg binden irn ii))))))]
     [(list? pat)
+     (println "list")
      (mk-enode! eg (cons (car pat)
                          (for/list ([subpat (cdr pat)])
                            (substitute-e eg subpat bindings))))]))
 
 (define (rrename-enode eg en i ii)
-  (let [(expr (enode-expr en))]
+  (begin (print "here!")
+  (let* [(expr (enode-expr en))]
     (match expr
-      [(? symbol?) (if (equal? expr i) (mk-enode! eg ii) (mk-enode! eg expr))]
-      [(list op ens ...) (let ([cs (map (lambda (c) rrename-enode eg c i ii) (enode-children en))]
+      [(? symbol?) (if (equal? expr i) (mk-enode! eg ii) en)]
+      [(list op ens ...) (begin (print "2")(let ([cs (map (lambda (c) (rrename-enode eg c i ii)) (enode-children en))]
                                [newen (mk-enode! eg (cons op (map (lambda (e) (rrename-enode eg e i ii)) ens)))])
                            (set-enode-children! newen cs)
                            (set-enode-cvars! newen (apply set-union (set (enode-expr newen))
-                                                          (map enode-cvars (enode-children newen))))
-                           newen)]
-      [_ en])))
+                                                          (map enode-cvars cs)))
+                           newen))]
+      [_ en]))))
