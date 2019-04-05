@@ -1,5 +1,7 @@
 #lang racket
 
+(require errortrace)
+
 (require "../common.rkt")
 (require "../programs.rkt")
 (require "../syntax/rules.rkt")

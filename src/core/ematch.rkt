@@ -109,7 +109,7 @@
     [(variable? pat) (println "in var")
      (let ([binden (cdr (assoc pat bindings))]) (println "got it")
        binden)]
-    [(foundit? pat) (print "DAWWG")]
+    ;[(foundit? pat) (print "DAWWG")]
     [(rename? pat)
      (println "rename")
      (let* ([binden (cdr (assoc (cadr pat) bindings))]
@@ -120,20 +120,22 @@
                                                (substitute-e eg '(b+ a (: i l)) bindings)
                                                (rrename-enode eg binden irn ii))))))]
     [(list? pat)
-     (println "list")
      (mk-enode! eg (cons (car pat)
                          (for/list ([subpat (cdr pat)])
                            (substitute-e eg subpat bindings))))]))
 
-(define (rrename-enode eg en i ii)
-  (begin (print "here!")
-  (let* [(expr (enode-expr en))]
-    (match expr
-      [(? symbol?) (if (equal? expr i) (mk-enode! eg ii) en)]
-      [(list op ens ...) (begin (print "2")(let ([cs (map (lambda (c) (rrename-enode eg c i ii)) (enode-children en))]
-                               [newen (mk-enode! eg (cons op (map (lambda (e) (rrename-enode eg e i ii)) ens)))])
-                           (set-enode-children! newen cs)
-                           (set-enode-cvars! newen (apply set-union (set (enode-expr newen))
-                                                          (map enode-cvars cs)))
-                           newen))]
-      [_ en]))))
+(define (rrename-enode eg eno i ii)
+  (let loop! [(en (pack-leader eno))]
+    (match (enode-expr en)
+      [(? symbol?) (if (equal? (enode-expr en) i) (mk-enode! eg ii) en)]
+      [(list op ens ...) (mk-enode! eg (cons op (map (lambda (e) (loop! e)) ens)))]
+      [_ en])))
+
+#;(define (for-pack! f en)
+  (let loop! ([en (pack-leader en)])
+    (let ([children* (map loop! (enode-children en))])
+      (set-enode-children! en children*)
+      (f en)
+      (set-enode-cvars! en (apply set-union (set (enode-expr en))
+                                  (map enode-cvars (enode-children en))))
+      en)))

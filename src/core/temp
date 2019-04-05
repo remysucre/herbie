@@ -1,0 +1,1 @@
+(define x (mk-egraph '(r* (agg b (r* (b+ u (: a b))(b+ v (: c b))) ) (agg b (r* (b+ u (: a b))(b+ v (: c b))))))) 
