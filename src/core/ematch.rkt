@@ -102,16 +102,14 @@
 (define (foundit? p) (equal? (car p) 'foundit))
 
 (define (substitute-e eg pat bindings)
-  (println "in sub")
   (cond
-    [(constant? pat) (println "in const")
+    [(constant? pat) 
      (mk-enode! eg pat)]
-    [(variable? pat) (println "in var")
-     (let ([binden (cdr (assoc pat bindings))]) (println "got it")
+    [(variable? pat) 
+     (let ([binden (cdr (assoc pat bindings))]) 
        binden)]
-    ;[(foundit? pat) (print "DAWWG")]
+    [(foundit? pat) (println "DAWWG")]
     [(rename? pat)
-     (println "rename")
      (let* ([binden (cdr (assoc (cadr pat) bindings))]
             [irn (enode-expr (cdr (assoc (caddr pat) bindings)))] ; index to rename
             [ii (gensym irn)]) ; fresh index name

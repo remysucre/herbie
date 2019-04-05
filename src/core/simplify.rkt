@@ -88,7 +88,6 @@
   ;; where bindings is a list of different matches between the rule
   ;; and the enode.
   (define (find-matches ens)
-    (print "findm")
     (filter (negate null?)
 	    (for*/list ([rl rls]
 			[en ens]
@@ -100,9 +99,8 @@
 			(list* rl en bindings)))))))
 
   (define (apply-match match)
-    (print "appm")
     (match-define (list rl en bindings ...) match)
-    (pretty-print rl)
+    ;(pretty-print rl)
 
     ;; These next two lines are here because an earlier match
     ;; application may have pruned the tree, invalidating the this
@@ -110,29 +108,21 @@
     ;; leader, so we just get the leader, and then double check the
     ;; bindings to make sure our match hasn't changed.
     
-    (print "define1")
     (define en* (pack-leader en))
-    (print "define2")
     (define bindings-set (apply set bindings))
-    (print "define3")
     (define bindings* (apply set (match-e (rule-input rl) en*)))
-    (print "define4")
     (define valid-bindings (set-intersect bindings-set bindings*))
     
-    (print "afterdefine")
 
-    (for ([binding valid-bindings]) (println "here")
+    (for ([binding valid-bindings]) 
       (merge-egraph-nodes! eg en (substitute-e eg (rule-output rl) binding)))
-    (print "afterloop")
     ;; Prune the enode if we can
     (unless (null? valid-bindings) (try-prune-enode en))
-    (print "after prune")
     ;; Mark this node as having this rule applied so that we don't try
     ;; to apply it again.
     (when (subset? valid-bindings bindings-set) (rule-applied! en rl)))
 
   (define (try-prune-enode en)
-    (print "prune")
     ;; If one of the variations of the enode is a single variable or
     ;; constant, reduce to that.
     (reduce-to-single! eg en)
@@ -142,9 +132,7 @@
     #;(elim-enode-loops! eg en))
 
   (for ([m (find-matches (egraph-leaders eg))])
-    (print "in loop")
     (apply-match m))
-  (print "precompute")
   (map-enodes (curry set-precompute! eg) eg)
   (void))
 
