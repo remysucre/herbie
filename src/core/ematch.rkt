@@ -123,7 +123,7 @@
                            (substitute-e eg subpat bindings))))]))
 
 (define (rrename-enode eg eno i ii)
-  (let loop! [(en (pack-leader eno))]
+  (let loop! [(en eno)]
     (match (enode-expr en)
       [(? symbol?) (if (equal? (enode-expr en) i) (mk-enode! eg ii) en)]
       [(list op ens ...) (mk-enode! eg (cons op (map (lambda (e) (loop! e)) ens)))]
