@@ -122,12 +122,30 @@
                          (for/list ([subpat (cdr pat)])
                            (substitute-e eg subpat bindings))))]))
 
-(define (rrename-enode eg eno i ii)
-  (let loop! [(en eno)]
+#;(define (rrename-enode eg eno i ii)
+  (let loop! [(en (pack-leader eno))]
+    (let* ([ncs (map loop! (enode-children en))]
+           [newen (mk-enode! eg (cons op (map (lambda (e) (loop! e)) ens)))])
+      )
     (match (enode-expr en)
       [(? symbol?) (if (equal? (enode-expr en) i) (mk-enode! eg ii) en)]
       [(list op ens ...) (mk-enode! eg (cons op (map (lambda (e) (loop! e)) ens)))]
       [_ en])))
+
+(define (rrename-enode eg eno i ii)
+  (let* ([en (pack-leader eno)]
+         [newen (mk-enode! eg (rrename-expr eg (enode-expr en) i ii))]
+         [cs (map (lambda (e) (rrename-expr eg (enode-expr e) i ii)))])
+    (set-enode-children! newen cs)
+    (set-enode-cvars! newen (apply set-union (set (enode-expr newen))
+                                   (map enode-cvars (enode-children newen))))
+    newen))
+
+(define (rrename-expr eg exp i ii)
+  (match exp
+    [(? symbol?) (if (equal? exp i) (mk-enode! eg ii) (mk-enode! exp))]
+    [(list op ens ...) (mk-enode! eg (cons op (map (lambda (e) (rrename-enode eg e i ii)) ens)))]
+    [e (mk-enode! eg e)]))
 
 #;(define (for-pack! f en)
   (let loop! ([en (pack-leader en)])
