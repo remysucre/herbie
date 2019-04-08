@@ -17,6 +17,16 @@
 ;;#
 ;;################################################################################;;
 
+(define (in-schema i u)
+  (let ([es (set->list (enode-vars u))])
+       (any? (lambda (e) (in-exp i e)) es)))
+
+(define (in-exp i e)
+ (match e
+  [(? symbol?) (equal? i e)]
+  [(list op ens ...) (any? (lambda (e) (in-schema i e)) ens)]
+  [_ #f]))
+
 (define (merge . bindings)
   ;; (list bindings) -> binding
   (foldl merge2 '() bindings))
@@ -51,13 +61,16 @@
 
 (define (all? ls) (foldl (lambda (x y) (and x y)) #t ls))
 
+(define (any? f ls) (foldl (lambda (x y) (or (f x) y)) #f ls))
+
 (define (isnot b)
   (match b
     [(cons 'not y) #t]
+    [(cons 'notin y) #t]
     [other #f]))
 
 (define (denot x)
-  (filter (lambda (b) (match (cdr b) [(cons 'not w) #f] [other #t])) x))
+  (filter (lambda (b) (match (cdr b) [(cons 'notin w) #f] [(cons 'not w) #f] [other #t])) x))
 
 ;; check if two matches are consistent
 (define (newmatch a b)
@@ -65,6 +78,9 @@
    [(cons (cons 'not ab) (cons 'not bb)) #t]
    [(cons (cons 'not ab) bb) (not (equal? ab bb))]
    [(cons ab (cons 'not bb)) (not (equal? ab bb))]
+   [(cons (cons 'notin ab) (cons 'notin bb)) #t]
+   [(cons (cons 'notin ab) bb) (not (in-schema bb ab))]
+   [(cons ab (cons 'notin bb)) (not (in-schema ab bb))]
    [(cons ab bb) (equal? ab bb)]))
 
 (define (match-e pat e)
@@ -84,6 +100,8 @@
      `(((,pat . ,e)))]
     [(equal? (car pat) 'isnt)
      `(((,(cadr pat) .  ,e) (,(caddr pat) . (not . ,e))))]
+    [(equal? (car pat) 'hasnt)
+     `(((,(cadr pat) .  ,e) (,(caddr pat) . (notin . ,e))))]
     [(list? pat)
      (apply append
             (for/list ([var (in-set (enode-vars e))])
@@ -106,6 +124,7 @@
     [(constant? pat) 
      (mk-enode! eg pat)]
     [(variable? pat) 
+     (println pat)
      (let ([binden (cdr (assoc pat bindings))]) 
        binden)]
     [(foundit? pat) (println (cadr pat))]
