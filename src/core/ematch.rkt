@@ -108,14 +108,14 @@
     [(variable? pat) 
      (let ([binden (cdr (assoc pat bindings))]) 
        binden)]
-    [(foundit? pat) (println "DAWWG")]
+    [(foundit? pat) (println (cadr pat))]
     [(rename? pat)
      (let* ([binden (cdr (assoc (cadr pat) bindings))]
             [irn (enode-expr (cdr (assoc (caddr pat) bindings)))] ; index to rename
             [ii (gensym irn)]) ; fresh index name
        (mk-enode! eg (list 'agg (mk-enode! eg ii)
                            (mk-enode! eg (list 'r*
-                                               (substitute-e eg '(b+ a (: i l)) bindings)
+                                               (substitute-e eg '(b+ u (: a b)) bindings)
                                                (rrename-enode eg binden irn ii))))))]
     [(list? pat)
      (mk-enode! eg (cons (car pat)
@@ -133,19 +133,16 @@
       [_ en])))
 
 (define (rrename-enode eg eno i ii)
-  (let* ([en (pack-leader eno)]
-         [newen (mk-enode! eg (rrename-expr eg (enode-expr en) i ii))]
-         [cs (map (lambda (e) (rrename-expr eg (enode-expr e) i ii)))])
-    (set-enode-children! newen cs)
-    (set-enode-cvars! newen (apply set-union (set (enode-expr newen))
-                                   (map enode-cvars (enode-children newen))))
-    newen))
+  (foldr (lambda (en en0)
+           (merge-egraph-nodes! eg (mk-enode! eg (rrename-expr eg (enode-expr en) i ii)) en0))
+         (mk-enode! eg (rrename-expr eg (enode-expr (pack-leader eno)) i ii))
+         (enode-children (pack-leader eno))))
 
 (define (rrename-expr eg exp i ii)
   (match exp
-    [(? symbol?) (if (equal? exp i) (mk-enode! eg ii) (mk-enode! exp))]
-    [(list op ens ...) (mk-enode! eg (cons op (map (lambda (e) (rrename-enode eg e i ii)) ens)))]
-    [e (mk-enode! eg e)]))
+    [(? symbol?) (if (equal? exp i) ii exp)]
+    [(list op ens ...) (cons op (map (lambda (e) (rrename-enode eg e i ii)) ens))]
+    [e e]))
 
 #;(define (for-pack! f en)
   (let loop! ([en (pack-leader en)])

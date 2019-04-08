@@ -1,5 +1,8 @@
 #lang racket
 
+(define ga '(r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
+                                      (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))
+
 (define g0 '(agg a (agg c (r* (r+ (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))
                               (r+ (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))))
 
@@ -18,8 +21,7 @@
 (define g3 '(r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c)))))
                     (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))
                 (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
-                    (agg a (agg c (agg b (agg d (r* (r* (b+ u (: a b)) (b+ v (: c b)))
-                                                    (r* (b+ u (: a d)) (b+ v (: c d)))))))))))
+                    (agg a (agg c (agg b (agg d (r* (r* (b+ u (: a b)) (b+ v (: c b))) (r* (b+ u (: a d)) (b+ v (: c d)))))))))))
 
 (define g4 '(r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c)))))
                     (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))
