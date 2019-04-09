@@ -24,8 +24,11 @@
 (define (in-exp i e)
  (match e
   [(? symbol?) (equal? i e)]
+  [(list 'agg ind bod) (if (equal? i (enode-expr ind))
+                           #f
+                           (in-schema i bod))]
   [(list op ens ...) (any? (lambda (e) (in-schema i e)) ens)]
-  [_ #f]))
+  [x #f]))
 
 (define (merge . bindings)
   ;; (list bindings) -> binding
@@ -56,7 +59,8 @@
   (or (isnot c)
       (empty? (filter (lambda (e) (or
                                    (not (pair? (cdr e)))
-                                   (not (equal? (cadr e) 'not))))
+                                   (and (not (equal? (cadr e) 'not))
+                                   (not (equal? (cadr e) 'notin)))))
                       l))))
 
 (define (all? ls) (foldl (lambda (x y) (and x y)) #t ls))
@@ -75,13 +79,15 @@
 ;; check if two matches are consistent
 (define (newmatch a b)
   (match (cons a b)
-   [(cons (cons 'not ab) (cons 'not bb)) #t]
-   [(cons (cons 'not ab) bb) (not (equal? ab bb))]
-   [(cons ab (cons 'not bb)) (not (equal? ab bb))]
-   [(cons (cons 'notin ab) (cons 'notin bb)) #t]
-   [(cons (cons 'notin ab) bb) (not (in-schema bb ab))]
-   [(cons ab (cons 'notin bb)) (not (in-schema ab bb))]
-   [(cons ab bb) (equal? ab bb)]))
+    [(cons (cons 'not ab) (cons 'not bb)) #t]
+    [(cons (cons 'not ab) bb) (not (equal? ab bb))]
+    [(cons ab (cons 'not bb)) (not (equal? ab bb))]
+    [(cons (cons 'notin ab) (cons 'notin bb)) #t]
+    [(cons (cons 'notin ab) (cons 'not bb)) #t]
+    [(cons (cons 'not ab) (cons 'notin bb)) #t]
+    [(cons (cons 'notin ab) bb) (not (in-schema bb ab))]
+    [(cons ab (cons 'notin bb)) (not (in-schema ab bb))]
+    [(cons ab bb) (equal? ab bb)]))
 
 (define (match-e pat e)
   ;; remove "not" bindings
@@ -124,7 +130,6 @@
     [(constant? pat) 
      (mk-enode! eg pat)]
     [(variable? pat) 
-     (println pat)
      (let ([binden (cdr (assoc pat bindings))]) 
        binden)]
     [(foundit? pat) (println (cadr pat))]

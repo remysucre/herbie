@@ -109,10 +109,10 @@
   [raggcond1-    (agg a (r* (agg a u) v)) (r* (agg a u) (agg a v))]
   ;[raggcond2     (r* (b+ u (: (isnt b a) (isnt c a))) (agg a v)) (agg a (r* (b+ u (: b c)) v))]
   ;[raggcond2-    (agg a (r* (b+ u (: (isnt b a) (isnt c a))) v)) (r* (b+ u (: b c)) (agg a v))]
-  ;[raggcond3     (r* (hasnt u a) (agg a v)) (agg a (r* u v))]
+  [raggcond3     (r* (hasnt u a) (agg a v)) (agg a (r* u v))]
   [raggcond3-    (agg a (r* (hasnt u a) v)) (r* u (agg a v))]
-  [raggrename    (r* (b+ u (: a b)) (agg a v)) (rn v a)]
-  [raggrename2   (r* (b+ u (: a b)) (agg b v)) (rn v b)]
+  ;[raggrename    (r* (b+ u (: a b)) (agg a v)) (rn v a)]
+  ;[raggrename2   (r* (b+ u (: a b)) (agg b v)) (rn v b)]
   [rass          (r+ u (r+ v x)) (r+ (r+ u v) x)]
   [rass-         (r+ (r+ u v) x) (r+ u (r+ v x))]
   [rass*         (r* u (r* v x)) (r* (r* u v) x)]
@@ -133,7 +133,7 @@
                 (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
                     (agg a (agg c (agg b (agg d (r* (r* (b+ u (: a b)) (b+ v (: c b))) (r* (b+ u (: a d)) (b+ v (: c d)))))))))) (foundit c)]
   [founditc (agg b (agg d (r* (agg a (r* (b+ u (: a b)) (b+ u (: a d))))
-                                      (agg c (r* (b+ v (: c d)) (b+ v (: c b))))))) (foundit lol)]
+                              (agg c (r* (b+ v (: c d)) (b+ v (: c b))))))) (foundit a)]
   [founditc (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c)))))
                     (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))
                 (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
