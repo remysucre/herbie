@@ -57,10 +57,9 @@
 ;; add binding c to l if l doesn't bind it
 (define (shouldadd l c)
   (or (isnot c)
-      (empty? (filter (lambda (e) (or
-                                   (not (pair? (cdr e)))
-                                   (and (not (equal? (cadr e) 'not))
-                                   (not (equal? (cadr e) 'notin)))))
+      (empty? (filter (lambda (e) (or (not (pair? (cdr e)))
+                                      (and (not (equal? (cadr e) 'not))
+                                           (not (equal? (cadr e) 'notin)))))
                       l))))
 
 (define (all? ls) (foldl (lambda (x y) (and x y)) #t ls))
@@ -85,8 +84,8 @@
     [(cons (cons 'notin ab) (cons 'notin bb)) #t]
     [(cons (cons 'notin ab) (cons 'not bb)) #t]
     [(cons (cons 'not ab) (cons 'notin bb)) #t]
-    [(cons (cons 'notin ab) bb) (not (in-schema bb ab))]
-    [(cons ab (cons 'notin bb)) (not (in-schema ab bb))]
+    [(cons (cons 'notin ab) bb) (not (in-schema (enode-expr bb) ab))]
+    [(cons ab (cons 'notin bb)) (not (in-schema (enode-expr ab) bb))]
     [(cons ab bb) (equal? ab bb)]))
 
 (define (match-e pat e)
