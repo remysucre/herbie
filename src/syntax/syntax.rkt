@@ -143,6 +143,27 @@
   [->tex (curry format "~a + ~a")]
   [nonffi +])
 
+(define-operator (rna attr attr) attr
+  [fl +] [bf bf+] [ival ival-add] [cost 40]
+  [->c/double (curry format "~a + ~a")]
+  [->c/mpfr (curry format "mpfr_add(~a, ~a, ~a, MPFR_RNDN)")]
+  [->tex (curry format "~a + ~a")]
+  [nonffi +])
+
+(define-operator (rnd attr ds) ds
+  [fl +] [bf bf+] [ival ival-add] [cost 40]
+  [->c/double (curry format "~a + ~a")]
+  [->c/mpfr (curry format "mpfr_add(~a, ~a, ~a, MPFR_RNDN)")]
+  [->tex (curry format "~a + ~a")]
+  [nonffi +])
+
+(define-operator (rnr attr rplan) rplan
+  [fl +] [bf bf+] [ival ival-add] [cost 40]
+  [->c/double (curry format "~a + ~a")]
+  [->c/mpfr (curry format "mpfr_add(~a, ~a, ~a, MPFR_RNDN)")]
+  [->tex (curry format "~a + ~a")]
+  [nonffi +])
+
 (define-operator (r+ rplan rplan) rplan
   [fl +] [bf bf+] [ival ival-add] [cost 40]
   [->c/double (curry format "~a + ~a")]
