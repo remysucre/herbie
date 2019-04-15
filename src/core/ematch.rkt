@@ -136,7 +136,8 @@
      (let* ([binden (cdr (assoc (cadr pat) bindings))]
             [irn (enode-expr (cdr (assoc (caddr pat) bindings)))] ; index to rename
             [ii (gensym irn)]) ; fresh index name
-       (mk-enode! eg (list 'agg (mk-enode! eg ii)
+
+       (println bindings)(mk-enode! eg (list 'agg (mk-enode! eg ii)
                            (mk-enode! eg (list 'r*
                                                (substitute-e eg '(b+ u (: a b)) bindings)
                                                (rrename-enode eg binden irn ii))))))]

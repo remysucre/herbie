@@ -112,22 +112,22 @@
   [raggorder       (agg a (agg b x)) (agg b (agg a x))]
 
   ; if a notin U, U * SIG a V -> SIG a U * V TODO is it beneficial to have this rule too? 
-  [raggpull        (r* (agg a u) (agg a v)) (agg a (r* (agg a u) v))]
-  [raggpull        (r* (agg b u) (agg a v)) (agg a (r* (agg a (sub a b u)) v))] ; TODO this is not right, because u might have a
-  [raggpull        (r* (b+ u (: (isnt b a) (isnt c a))) (agg a v)) (agg a (r* (b+ u (: b c)) v))]
+  ;[raggpull        (r* (agg a u) (agg a v)) (agg a (r* (agg a u) v))]
+  ;[raggpull        (r* (agg b u) (agg a v)) (agg a (r* (agg a (sub a b u)) v))] ; TODO this is not right, because u might have a
+  ;[raggpull        (r* (b+ u (: (isnt b a) (isnt c a))) (agg a v)) (agg a (r* (b+ u (: b c)) v))]
   ; if a in U, U * SIG a V -> SIG a' V[a'/a]
-  [raggpull1       (r* u (agg a v)) (agg (rn a) (r* u (rn a v)))]
+  ;[raggpull1       (r* u (agg a v)) (agg (rn a) (r* u (rn a v)))]
   ; if a notin U, SIG a U * V -> U * SIG a V
-  [raggpush1       (agg a (r* (agg a u) v)) (r* (agg a u) (agg a v))]
-  [raggpush1       (agg a (r* (agg b u) v)) (r* (agg a (sub a b u)) (agg a v))] ; TODO this is not right, because u might have a
-  [raggpush2       (agg a (r* (b+ u (isnt b a) (isnt c a)) v)) (r* (b+ u (: b c)) (agg a v))]
+  ;[raggpush1       (agg a (r* (agg a u) v)) (r* (agg a u) (agg a v))]
+  ;[raggpush1       (agg a (r* (agg b u) v)) (r* (agg a (sub a b u)) (agg a v))] ; TODO this is not right, because u might have a
+  ;[raggpush2       (agg a (r* (b+ u (isnt b a) (isnt c a)) v)) (r* (b+ u (: b c)) (agg a v))]
   
   ;[raggcond2     (r* (b+ u (: (isnt b a) (isnt c a))) (agg a v)) (agg a (r* (b+ u (: b c)) v))]  
   ;[raggcond2-    (agg a (r* (b+ u (: (isnt b a) (isnt c a))) v)) (r* (b+ u (: b c)) (agg a v))]
-  ;[raggcond3     (r* (hasnt u a) (agg a v)) (agg a (r* u v))]
-  ;[raggcond3-    (agg a (r* (hasnt u a) v)) (r* u (agg a v))]
-  ;[raggrename    (r* (b+ u (: a b)) (agg a v)) (rn v a)]
-  ;[raggrename2   (r* (b+ u (: a b)) (agg b v)) (rn v b)]
+  [raggcond3     (r* (hasnt u a) (agg a v)) (agg a (r* u v))]
+  [raggcond3-    (agg a (r* (hasnt u a) v)) (r* u (agg a v))]
+  [raggrename    (r* (b+ u (: a b)) (agg a v)) (rn v a)]
+  [raggrename2   (r* (b+ u (: a b)) (agg b v)) (rn v b)]
   #;[foundita (agg a (agg c (r+ (r+ (r* (b+ x (: a c)) (b+ x (: a c)))
                                   (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))
                               (r+ (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))
