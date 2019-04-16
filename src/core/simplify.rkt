@@ -118,7 +118,7 @@
     
 
     (for ([binding valid-bindings]) 
-      (merge-egraph-nodes! eg en (substitute-e eg (rule-output rl) binding)))
+      (merge-egraph-nodes! eg en (substitute-e eg rl (rule-output rl) binding)))
     ;; Prune the enode if we can
     (unless (null? valid-bindings) (try-prune-enode en))
     ;; Mark this node as having this rule applied so that we don't try

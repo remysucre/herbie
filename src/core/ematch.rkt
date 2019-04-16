@@ -24,7 +24,7 @@
 (define (in-exp i e)
  (match e
   [(? symbol?) (equal? i e)]
-  [(list 'agg ind bod) (if (equal? i (enode-expr ind))
+  [(list 'agg ind bod) (println (cons (enode-expr ind) i))(if (equal? i (enode-expr ind))
                            #f
                            (in-schema i bod))]
   [(list op ens ...) (any? (lambda (e) (in-schema i e)) ens)]
@@ -78,12 +78,12 @@
 ;; check if two matches are consistent
 (define (newmatch a b)
   (match (cons a b)
-    [(cons (cons 'not ab) (cons 'not bb)) #t]
-    [(cons (cons 'not ab) bb) (not (equal? ab bb))]
-    [(cons ab (cons 'not bb)) (not (equal? ab bb))]
+    ;[(cons (cons 'not ab) (cons 'not bb)) #t]
+    ;[(cons (cons 'not ab) bb) (not (equal? ab bb))]
+    ;[(cons ab (cons 'not bb)) (not (equal? ab bb))]
+    ;[(cons (cons 'notin ab) (cons 'not bb)) #t]
+    ;[(cons (cons 'not ab) (cons 'notin bb)) #t]
     [(cons (cons 'notin ab) (cons 'notin bb)) #t]
-    [(cons (cons 'notin ab) (cons 'not bb)) #t]
-    [(cons (cons 'not ab) (cons 'notin bb)) #t]
     [(cons (cons 'notin ab) bb) (not (in-schema (enode-expr bb) ab))]
     [(cons ab (cons 'notin bb)) (not (in-schema (enode-expr ab) bb))]
     [(cons ab bb) (equal? ab bb)]))
@@ -121,10 +121,11 @@
     [else
      (error "WTF" pat)]))
 
-(define (rename? p) (equal? (car p) 'rn))
+(define (rename? p) (or (equal? (car p) 'rn1) (equal? (car p) 'rn2)))
+(define (rn-rule p) (if (equal? p 'rn1) 'raggrename 'raggrename2))
 (define (foundit? p) (equal? (car p) 'foundit))
 
-(define (substitute-e eg pat bindings)
+(define (substitute-e eg rl pat bindings)
   (cond
     [(constant? pat) 
      (mk-enode! eg pat)]
@@ -135,16 +136,18 @@
     [(rename? pat)
      (let* ([binden (cdr (assoc (cadr pat) bindings))]
             [irn (enode-expr (cdr (assoc (caddr pat) bindings)))] ; index to rename
-            [ii (gensym irn)]) ; fresh index name
-
-       (mk-enode! eg (list 'agg (mk-enode! eg ii)
+            [ii (gensym irn)]
+            [res (mk-enode! eg (list 'agg (mk-enode! eg ii)
                            (mk-enode! eg (list 'r*
-                                               (substitute-e eg '(b+ u (: a b)) bindings)
-                                               (rrename-enode eg binden irn ii))))))]
+                                               (substitute-e eg rl '(b+ u (: a b)) bindings)
+                                               (rrename-enode eg binden irn ii)))))]) ; fresh index name
+
+       (rule-applied! res rl)
+       res)]
     [(list? pat)
      (mk-enode! eg (cons (car pat)
                          (for/list ([subpat (cdr pat)])
-                           (substitute-e eg subpat bindings))))]))
+                           (substitute-e eg rl subpat bindings))))]))
 
 #;(define (rrename-enode eg eno i ii)
   (let loop! [(en (pack-leader eno))]

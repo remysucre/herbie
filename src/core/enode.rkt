@@ -111,7 +111,7 @@
   (when (<= (enode-depth new-parent) (enode-depth child))
     (set-enode-depth! new-parent (add1 (enode-depth new-parent))))
   (set-enode-cvars! new-parent (set-union (enode-cvars new-parent) (enode-cvars child)))
-  #;(set-intersect! (enode-applied-rules new-parent)
+  (set-intersect! (enode-applied-rules new-parent)
                   (enode-applied-rules child))
   #;(map refresh-victory! (pack-members new-parent))
   ;; This is an expensive check, but useful for debuggging.
@@ -271,11 +271,12 @@
 
 ;; Returns whether the given rule has already been applied to the given enode
 (define (rule-applied? en rl)
-  (set-member? (enode-applied-rules en) rl))
+  (println rl)
+  (set-member? (enode-applied-rules (pack-leader en)) rl))
 
 ;; Marks the given enode as having the given rule applied to it.
 (define (rule-applied! en rl)
- (set-add! (enode-applied-rules en) rl))
+ (set-add! (enode-applied-rules (pack-leader en)) rl))
 
 (define (check-valid-pack en #:loc [location 'check-valid-pack])
   (let ([members (pack-members en)])
