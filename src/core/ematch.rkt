@@ -125,7 +125,7 @@
 (define (rn-rule p) (if (equal? p 'rn1) 'raggrename 'raggrename2))
 (define (foundit? p) (equal? (car p) 'foundit))
 
-(define (substitute-e eg rl pat bindings)
+(define (substitute-e eg pat bindings)
   (cond
     [(constant? pat) 
      (mk-enode! eg pat)]
@@ -139,15 +139,13 @@
             [ii (gensym irn)]
             [res (mk-enode! eg (list 'agg (mk-enode! eg ii)
                            (mk-enode! eg (list 'r*
-                                               (substitute-e eg rl '(b+ u (: a b)) bindings)
+                                               (substitute-e eg '(b+ u (: a b)) bindings)
                                                (rrename-enode eg binden irn ii)))))]) ; fresh index name
-
-       (rule-applied! res rl)
        res)]
     [(list? pat)
      (mk-enode! eg (cons (car pat)
                          (for/list ([subpat (cdr pat)])
-                           (substitute-e eg rl subpat bindings))))]))
+                           (substitute-e eg subpat bindings))))]))
 
 #;(define (rrename-enode eg eno i ii)
   (let loop! [(en (pack-leader eno))]

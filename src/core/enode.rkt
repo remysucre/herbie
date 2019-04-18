@@ -2,6 +2,7 @@
 
 (require "../common.rkt")
 (require "../syntax/syntax.rkt")
+(require "../syntax/rules.rkt")
 (require "../type-check.rkt")
 
 (provide new-enode enode-merge!
@@ -111,8 +112,17 @@
   (when (<= (enode-depth new-parent) (enode-depth child))
     (set-enode-depth! new-parent (add1 (enode-depth new-parent))))
   (set-enode-cvars! new-parent (set-union (enode-cvars new-parent) (enode-cvars child)))
+  (define aggrl (mutable-set))
+  (if (set-member? (enode-applied-rules new-parent) 'raggrename)
+      (set-add! aggrl 'raggrename)
+      (void))
+  (if (set-member? (enode-applied-rules new-parent) 'raggrename2)
+      (set-add! aggrl 'raggrename2)
+      (void))
   (set-intersect! (enode-applied-rules new-parent)
                   (enode-applied-rules child))
+  (set-union! (enode-applied-rules new-parent) aggrl)
+ 
   #;(map refresh-victory! (pack-members new-parent))
   ;; This is an expensive check, but useful for debuggging.
   #;(check-valid-parent child)
@@ -272,11 +282,19 @@
 ;; Returns whether the given rule has already been applied to the given enode
 (define (rule-applied? en rl)
   (println rl)
-  (set-member? (enode-applied-rules (pack-leader en)) rl))
+  (if (or (equal? (rule-name rl) 'raggrename)
+          (equal? (rule-name rl) 'raggrename2))
+      (set-member? (enode-applied-rules en) (rule-name rl))
+      (set-member? (enode-applied-rules (pack-leader en)) rl))
+  )
 
 ;; Marks the given enode as having the given rule applied to it.
 (define (rule-applied! en rl)
- (set-add! (enode-applied-rules (pack-leader en)) rl))
+  (if (or (equal? (rule-name rl) 'raggrename)
+          (equal? (rule-name rl) 'raggrename2))
+      (set-add! (enode-applied-rules en) (rule-name rl))
+      (set-add! (enode-applied-rules (pack-leader en)) rl))
+ )
 
 (define (check-valid-pack en #:loc [location 'check-valid-pack])
   (let ([members (pack-members en)])
