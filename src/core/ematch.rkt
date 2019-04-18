@@ -24,7 +24,7 @@
 (define (in-exp i e)
  (match e
   [(? symbol?) (equal? i e)]
-  [(list 'agg ind bod) (println (cons (enode-expr ind) i))(if (equal? i (enode-expr ind))
+  [(list 'agg ind bod) (if (equal? i (enode-expr ind))
                            #f
                            (in-schema i bod))]
   [(list op ens ...) (any? (lambda (e) (in-schema i e)) ens)]

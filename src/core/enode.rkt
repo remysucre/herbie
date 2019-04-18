@@ -281,7 +281,6 @@
 
 ;; Returns whether the given rule has already been applied to the given enode
 (define (rule-applied? en rl)
-  (println rl)
   (if (or (equal? (rule-name rl) 'raggrename)
           (equal? (rule-name rl) 'raggrename2))
       (set-member? (enode-applied-rules en) (rule-name rl))

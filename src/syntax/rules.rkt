@@ -143,9 +143,9 @@
                 (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
                     (agg a (agg c (agg b (agg d (r* (r* (b+ u (: a b)) (b+ v (: c b))) (r* (b+ u (: a d)) (b+ v (: c d)))))))))) (foundit c)]
 ; (agg a (agg c (r* (r* (b+ u (: a b)) (b+ v (: c b))) (r* (b+ u (: a d)) (b+ v (: c d)))))))) (foundit c)]
-  [founditc (r* (agg a (r* (b+ u (: a b)) (b+ u (: a d))))
+  #;[founditc (r* (agg a (r* (b+ u (: a b)) (b+ u (: a d))))
                               (agg c (r* (b+ v (: c d)) (b+ v (: c b))))) (foundit a)]
-  [founditc (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c)))))
+  #;[founditc (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c)))))
                     (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))
                 (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
                     (agg b (agg d (r* (agg a (r* (b+ u (: a b)) (b+ u (: a d))))
