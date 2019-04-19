@@ -106,9 +106,7 @@
   [rcommutative+   (r+ u v) (r+ v u)]
   [rcommutative*   (r* u v) (r* v u)]
   [rassoc          (r+ u (r+ v x)) (r+ (r+ u v) x)]
-  [rassoc-         (r+ (r+ u v) x) (r+ u (r+ v x))]
   [rassoc*         (r* u (r* v x)) (r* (r* u v) x)]
-  [rassoc*-        (r* (r* u v) x) (r* u (r* v x))]
   [raggorder       (agg a (agg b x)) (agg b (agg a x))]
 
   ; if a notin U, U * SIG a V -> SIG a U * V TODO is it beneficial to have this rule too? 
