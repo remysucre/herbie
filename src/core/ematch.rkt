@@ -59,7 +59,8 @@
   (or (isnot c)
       (empty? (filter (lambda (e) (or (not (pair? (cdr e)))
                                       (and (not (equal? (cadr e) 'not))
-                                           (not (equal? (cadr e) 'notin)))))
+                                           (not (equal? (cadr e) 'notin))
+                                           (not (equal? (cadr e) 'isin)))))
                       l))))
 
 (define (all? ls) (foldl (lambda (x y) (and x y)) #t ls))
@@ -70,19 +71,20 @@
   (match b
     [(cons 'not y) #t]
     [(cons 'notin y) #t]
+    [(cons 'isin y) #t]
     [other #f]))
 
 (define (denot x)
-  (filter (lambda (b) (match (cdr b) [(cons 'notin w) #f] [(cons 'not w) #f] [other #t])) x))
+  (filter (lambda (b) (match (cdr b) [(cons 'isin w) #f] [(cons 'notin w) #f] [(cons 'not w) #f] [other #t])) x))
 
 ;; check if two matches are consistent
 (define (newmatch a b)
   (match (cons a b)
-    ;[(cons (cons 'not ab) (cons 'not bb)) #t]
-    ;[(cons (cons 'not ab) bb) (not (equal? ab bb))]
-    ;[(cons ab (cons 'not bb)) (not (equal? ab bb))]
-    ;[(cons (cons 'notin ab) (cons 'not bb)) #t]
-    ;[(cons (cons 'not ab) (cons 'notin bb)) #t]
+    [(cons (cons 'isin ab) (cons 'isin bb)) #t]
+    [(cons (cons 'isin ab) bb) (in-schema (enode-expr bb) ab)]
+    [(cons ab (cons 'isin bb)) (in-schema (enode-expr ab) bb)]
+    [(cons (cons 'isin ab) (cons 'notin ab)) #f]
+    [(cons (cons 'isin ab) (cons 'notin bb)) #t]
     [(cons (cons 'notin ab) (cons 'notin bb)) #t]
     [(cons (cons 'notin ab) bb) (not (in-schema (enode-expr bb) ab))]
     [(cons ab (cons 'notin bb)) (not (in-schema (enode-expr ab) bb))]
@@ -107,6 +109,8 @@
      `(((,(cadr pat) .  ,e) (,(caddr pat) . (not . ,e))))]
     [(equal? (car pat) 'hasnt)
      `(((,(cadr pat) .  ,e) (,(caddr pat) . (notin . ,e))))]
+    [(equal? (car pat) 'has)
+     `(((,(cadr pat) .  ,e) (,(caddr pat) . (isin . ,e))))]
     [(list? pat)
      (apply append
             (for/list ([var (in-set (enode-vars e))])
@@ -139,7 +143,7 @@
             [ii (begin (println 'gen)(gensym irn))]
             [res (mk-enode! eg (list 'agg (mk-enode! eg ii)
                            (mk-enode! eg (list 'r*
-                                               (substitute-e eg '(b+ u (: a b)) bindings)
+                                               (substitute-e eg 'u bindings)
                                                (rrename-enode eg binden irn ii)))))]) ; fresh index name
        res)]
     [(list? pat)

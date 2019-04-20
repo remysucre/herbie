@@ -9,6 +9,8 @@
 (require "ematch.rkt")
 (require "enode.rkt")
 
+(require errortrace)
+
 (provide simplify-expr *max-egraph-iters*)
 
 (module+ test (require rackunit))
