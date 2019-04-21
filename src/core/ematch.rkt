@@ -133,6 +133,8 @@
   (cond
     [(constant? pat) 
      (mk-enode! eg pat)]
+    [(equal? pat 'freshname!)
+     (mk-enode! eg (gensym))]
     [(variable? pat) 
      (let ([binden (cdr (assoc pat bindings))]) 
        binden)]

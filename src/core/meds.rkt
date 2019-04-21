@@ -12,6 +12,7 @@
                                   (r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
                                       (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))))
 
+(define g2a '(r* (agg b (r* (b+ u (: a b)) (b+ v (: c b)))) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))
 (define g2 '(r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c)))))
                     (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))
                 (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))

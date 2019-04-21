@@ -109,47 +109,30 @@
   [rassoc*         (r* u (r* v x)) (r* (r* u v) x)]
   [raggorder       (agg a (agg b x)) (agg b (agg a x))]
 
-  ; if a notin U, U * SIG a V -> SIG a U * V TODO is it beneficial to have this rule too? 
-  ;[raggpull        (r* (agg a u) (agg a v)) (agg a (r* (agg a u) v))]
-  ;[raggpull        (r* (agg b u) (agg a v)) (agg a (r* (agg a (sub a b u)) v))] ; TODO this is not right, because u might have a
-  ;[raggpull        (r* (b+ u (: (isnt b a) (isnt c a))) (agg a v)) (agg a (r* (b+ u (: b c)) v))]
-  ; if a in U, U * SIG a V -> SIG a' V[a'/a]
-  ;[raggpull1       (r* u (agg a v)) (agg (rn a) (r* u (rn a v)))]
-  ; if a notin U, SIG a U * V -> U * SIG a V
-  ;[raggpush1       (agg a (r* (agg a u) v)) (r* (agg a u) (agg a v))]
-  ;[raggpush1       (agg a (r* (agg b u) v)) (r* (agg a (sub a b u)) (agg a v))] ; TODO this is not right, because u might have a
-  ;[raggpush2       (agg a (r* (b+ u (isnt b a) (isnt c a)) v)) (r* (b+ u (: b c)) (agg a v))]
-  
-  ;[raggcond2     (r* (b+ u (: (isnt b a) (isnt c a))) (agg a v)) (agg a (r* (b+ u (: b c)) v))]  
-  ;[raggcond2-    (agg a (r* (b+ u (: (isnt b a) (isnt c a))) v)) (r* (b+ u (: b c)) (agg a v))]
+  [rrename1 (-/- x a a) x]
+  [rrename2 (-/- (r+ u v) a b) (r+ (-/- u a b) (-/- v a b))]
+  [rrename3 (-/- (r* u v) a b) (r* (-/- u a b) (-/- v a b))]
+  [rrename4 (-/- (agg a u) a b) (agg b (-/- u a b))]
+  [rrename4 (-/- (agg (hasnt c a) u) a (hasnt b a)) (agg b (-/- u a b))]
+  [rrename5 (-/- (-/- x a b) b c) (-/- x a c)]
+  [rrename5 (-/- (-/- x a b) a c) (-/- x a b)]
+  [rrename5 (-/- (-/- x (hasnt a c) (hasnt b c)) c (hasnt d a)) (-/- (-/- x c d) a b)]
+
+  [rrename (-/- (b+ x ds) a b) (b+ x (-/- ds a b))]
+  [rrename (-/- (: a a) a b) (: b b)]
+  [rrename (-/- (: a (hasnt c a)) a b) (: b c)]
+  [rrename (-/- (: (hasnt c a) (hasnt c a)) a b) (: c c)]
+  [swapattr (: i j) (: j i)]
+
   [raggcond3     (r* (hasnt u a) (agg a v)) (agg a (r* u v))]
   [raggcond3-    (agg a (r* (hasnt u a) v)) (r* u (agg a v))]
-  [raggrename    (r* (has u a) (agg a v)) (rn1 v a)]
-  #;[raggrename2   (r* (b+ u (: a b)) (agg b v)) (rn2 v b)]
-  #;[foundita (agg a (agg c (r+ (r+ (r* (b+ x (: a c)) (b+ x (: a c)))
-                                  (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))
-                              (r+ (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))
-                                  (r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
-                                      (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))) (foundit a)]
-  #;[founditd (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c)))))
-                    (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))
-                (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
-                    (agg a (agg c (r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
-                                      (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))) (foundit b)]
-  #;[founditb (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c)))))
-                    (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))
-                (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
-                    (agg a (agg c (agg b (agg d (r* (r* (b+ u (: a b)) (b+ v (: c b))) (r* (b+ u (: a d)) (b+ v (: c d)))))))))) (foundit c)]
-; (agg a (agg c (r* (r* (b+ u (: a b)) (b+ v (: c b))) (r* (b+ u (: a d)) (b+ v (: c d)))))))) (foundit c)]
-  #;[founditc (r* (agg a (r* (b+ u (: a b)) (b+ u (: a d))))
-                              (agg c (r* (b+ v (: c d)) (b+ v (: c b))))) (foundit a)]
-  #;[founditc (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c)))))
-                    (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))
-                (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
-                    (agg b (agg d (r* (agg a (r* (b+ u (: a b)) (b+ u (: a d))))
-                                      (agg c (r* (b+ v (: c d)) (b+ v (: c b))))))))) (foundit d)]
-  #;[foundit! (r+ (agg a (agg c (r+ (r* (b+ x (: a c)) (b+ x (: a c))) (r+ (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))) (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))) (agg b (agg d (r* (agg a (r* (b+ u (: a b)) (b+ u (: a d)))) (agg c (r* (b+ v (: c d)) (b+ v (: c b)))))))) (foundit e)]
-)
+  [raggrename    (r* (has u a) (agg a v)) (r* u (-/- (agg a v) a freshname!))]
+  ;;[founditba (agg b (agg (hasnt d b) (r* (r* (b+ u (: a b)) (b+ v (: c b))) (r* (b+ u (: a d)) (b+ v (: c d)))))) (foundit b)]
+  ;;[foundita (agg a (agg c (r+ (r+ (r* (b+ x (: a c)) (b+ x (: a c))) (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))) (r+ (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))) (r* (agg b (r* (b+ u (: a b)) (b+ v (: c b)))) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))) (foundit a)]
+  #;[founditb (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c))))) (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))) (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))) (agg a (agg c (r* (agg b (r* (b+ u (: a b)) (b+ v (: c b)))) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))) (foundit b)]
+  ;[founditc (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c))))) (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))) (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))) (agg a (agg c (agg b (agg d (r* (r* (b+ u (: a b)) (b+ v (: c b))) (r* (b+ u (: a d)) (b+ v (: c d)))))))))) (foundit c)]
+  [founditd (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c))))) (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))) (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))) (agg b (agg d (r* (agg a (r* (b+ u (: a b)) (b+ u (: a d)))) (agg c (r* (b+ v (: c d)) (b+ v (: c b))))))))) (foundit d)]
+  [foundit! (r+ (agg a (agg c (r+ (r* (b+ x (: a c)) (b+ x (: a c))) (r+ (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))) (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))) (agg b (agg d (r* (agg a (r* (b+ u (: a b)) (b+ u (: a d)))) (agg c (r* (b+ v (: c d)) (b+ v (: c b)))))))) (foundit e)])
 ; Distributivity
 (define-ruleset distributivity (arithmetic simplify)
   #:type ([a real] [b real] [c real])
