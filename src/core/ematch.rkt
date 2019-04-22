@@ -125,7 +125,8 @@
     [else
      (error "WTF" pat)]))
 
-(define (rename? p) (or (equal? (car p) 'rn1) (equal? (car p) 'rn2)))
+;(define (rename? p) (or (equal? p 'rename) (equal? (car p) 'rn1) (equal? (car p) 'rn2)))
+(define (rename? p) (equal? (car p) 'rename))
 (define (rn-rule p) (if (equal? p 'rn1) 'raggrename 'raggrename2))
 (define (foundit? p) (equal? (car p) 'foundit))
 
@@ -140,13 +141,12 @@
        binden)]
     [(foundit? pat) (println (cadr pat))]
     [(rename? pat)
-     (let* ([binden (cdr (assoc (cadr pat) bindings))]
-            [irn (enode-expr (cdr (assoc (caddr pat) bindings)))] ; index to rename
-            [ii (begin (println 'gen)(gensym irn))]
-            [res (mk-enode! eg (list 'agg (mk-enode! eg ii)
-                           (mk-enode! eg (list 'r*
+     (let* (;[binden (cdr (assoc (cadr pat) bindings))]
+            [ii (begin (println 'gen) (gensym))]
+            [res (mk-enode! eg (list 'agg (mk-enode! eg ii) (mk-enode! eg (list 'r*
                                                (substitute-e eg 'u bindings)
-                                               (rrename-enode eg binden irn ii)))))]) ; fresh index name
+                                               (mk-enode! eg `(-/- ,(substitute-e eg 'v bindings) 
+                                                                ,(substitute-e eg 'a bindings) ,(mk-enode! eg ii)))))))])
        res)]
     [(list? pat)
      (mk-enode! eg (cons (car pat)
