@@ -30,20 +30,20 @@
 
 ;; Cap the number of iterations to try at this.
 (define *max-egraph-iters* (make-parameter 6))
-(define *node-limit* (make-parameter 500))
+(define *node-limit* (make-parameter 500)
 
 (define/contract (simplify-expr expr #:rules rls)
   (-> expr? #:rules (listof rule?) expr?)
   (debug #:from 'simplify #:tag 'enter (format "Simplifying ~a" expr))
   (if (has-nan? expr) +nan.0
       (let* ([iters (min (*max-egraph-iters*) (iters-needed expr))]
-             
 
 
-	     [eg (mk-egraph expr)])
-	(iterate-egraph! eg iters #:rules rls)
-	(define out (extract-smallest-best-effort eg))
-        
+
+       [eg (mk-egraph expr)])
+  (iterate-egraph! eg iters #:rules rls)
+  (define out (extract-smallest-best-effort eg))
+
 
 
         (debug #:from 'simplify #:tag 'exit (format "Simplified to ~a" out))
@@ -52,15 +52,15 @@
 (define (has-nan? expr)
   (or (and (number? expr) (nan? expr))
       (and (list? expr)
-	   (ormap has-nan? (cdr expr)))))
+     (ormap has-nan? (cdr expr)))))
 
 ;; Returns the worst-case iterations needed to simplify this expression
 (define (iters-needed expr)
   (if (not (list? expr)) 0
       (let ([sub-iters-needed (apply max (map iters-needed (cdr expr)))])
-	(if (let ([op (car expr)]) (or (eq? op '*) (eq? op '+) (eq? op '-) (eq? op '/)))
-	    (+ 2 sub-iters-needed)
-	    (+ 1 sub-iters-needed)))))
+  (if (let ([op (car expr)]) (or (eq? op '*) (eq? op '+) (eq? op '-) (eq? op '/)))
+      (+ 2 sub-iters-needed)
+      (+ 1 sub-iters-needed)))))
 
 (define (saturate eg #:rules [rls (*simplify-rules*)])
 (let ([start-cnt (egraph-cnt eg)])
@@ -74,8 +74,8 @@
     (debug #:from 'simplify #:depth 2 (format "iters left: ~a (~a enodes)" iters start-cnt))
     (one-iter eg rls)
     (when (and (> (egraph-cnt eg) start-cnt)
-	       (> iters 1)
-	       (< (egraph-cnt eg) (*node-limit*)))
+         (> iters 1)
+         (< (egraph-cnt eg) (*node-limit*)))
       (iterate-egraph! eg (sub1 iters) #:rules rls))))
 
 ;; Iterates the egraph by applying each of the given rules in parallel
@@ -84,24 +84,24 @@
 
   ;; Tries to match the rules against the given enodes, and returns a
   ;; list of matches found. Matches are of the form:
-  ;; 
+  ;;
   ;; (rule enode . bindings)
   ;;
   ;; where bindings is a list of different matches between the rule
   ;; and the enode.
   (define (find-matches ens)
     (filter (negate null?)
-	    (for*/list ([rl rls]
-			[en ens]
+      (for*/list ([rl rls]
+      [en ens]
                         #:when (or (not (variable? (rule-input rl)))
                                    (equal? (dict-ref (rule-itypes rl) (rule-input rl)) (enode-type en))))
 (let ([bindings (match-e (rule-input rl) en)])
-		    (if (null? bindings) '()
-			(list* rl en bindings)))
-	      (if (rule-applied? en rl) '()
-		  (let ([bindings (match-e (rule-input rl) en)])
-		    (if (null? bindings) '()
-			(list* rl en bindings)))))))
+        (if (null? bindings) '()
+      (list* rl en bindings)))
+        (if (rule-applied? en rl) '()
+      (let ([bindings (match-e (rule-input rl) en)])
+        (if (null? bindings) '()
+      (list* rl en bindings)))))))
 
   (define (apply-match match)
     (match-define (list rl en bindings ...) match)
@@ -112,14 +112,14 @@
     ;; one. Luckily, a pruned enode will still point to it's old
     ;; leader, so we just get the leader, and then double check the
     ;; bindings to make sure our match hasn't changed.
-    
+
     (define en* (pack-leader en))
     (define bindings-set (apply set bindings))
     (define bindings* (apply set (match-e (rule-input rl) en*)))
     (define valid-bindings (set-intersect bindings-set bindings*))
-    
 
-    (for ([binding valid-bindings]) 
+
+    (for ([binding valid-bindings])
       (merge-egraph-nodes! eg en (substitute-e eg (rule-output rl) binding)))
     ;; Prune the enode if we can
     (unless (null? valid-bindings) (try-prune-enode en))
@@ -169,16 +169,16 @@
   (for ([var (enode-vars en)])
     (when (list? var)
       (let ([constexpr
-	     (cons (car var)
-		   (map (compose (curry setfindf constant?) enode-vars)
-			(cdr var)))])
-	(when (and (not (matches? constexpr `(/ ,a 0)))
-		   (not (matches? constexpr `(log 0)))
-		   (not (matches? constexpr `(/ 0)))
-		   (andmap real? (cdr constexpr)))
-	  (let ([res (eval-const-expr constexpr)])
-	    (when (and (val-of-type type res) (exact-value? type res))
-	      (reduce-to-new! eg en (val-to-type type res)))))))))
+       (cons (car var)
+       (map (compose (curry setfindf constant?) enode-vars)
+      (cdr var)))])
+  (when (and (not (matches? constexpr `(/ ,a 0)))
+       (not (matches? constexpr `(log 0)))
+       (not (matches? constexpr `(/ 0)))
+       (andmap real? (cdr constexpr)))
+    (let ([res (eval-const-expr constexpr)])
+      (when (and (val-of-type type res) (exact-value? type res))
+        (reduce-to-new! eg en (val-to-type type res)))))))))
 
 (define (hash-set*+ hash assocs)
   (for/fold ([h hash]) ([assoc assocs])
@@ -187,32 +187,32 @@
 (define (extract-smallest-best-effort eg)
   (define (resolve en ens->exprs)
     (let ([possible-resolutions
-	   (filter identity
-	     (for/list ([var (enode-vars en)])
-	       (if (not (list? var)) var
-		   (let ([expr (cons (car var)
-				     (for/list ([en (cdr var)])
-				       (hash-ref ens->exprs (pack-leader en) #f)))])
-		     (if (andmap identity (cdr expr))
-			 expr
-			 #f)))))])
+     (filter identity
+       (for/list ([var (enode-vars en)])
+         (if (not (list? var)) var
+       (let ([expr (cons (car var)
+             (for/list ([en (cdr var)])
+               (hash-ref ens->exprs (pack-leader en) #f)))])
+         (if (andmap identity (cdr expr))
+       expr
+       #f)))))])
       (if (null? possible-resolutions) #f
-	  (argmin expression-cost possible-resolutions))))
+    (argmin expression-cost possible-resolutions))))
   (define (pass ens ens->exprs)
     (let-values ([(pairs left)
-		  (partition pair?
-			     (for/list ([en ens])
-			       (let ([resolution (resolve en ens->exprs)])
-				 (if resolution
-				     (cons en resolution)
-				     en))))])
+      (partition pair?
+           (for/list ([en ens])
+             (let ([resolution (resolve en ens->exprs)])
+         (if resolution
+             (cons en resolution)
+             en))))])
       (list (hash-set*+ ens->exprs pairs)
-	    left)))
+      left)))
   (let loop ([todo-ens (egraph-leaders eg)]
-	     [ens->exprs (hash)])
+       [ens->exprs (hash)])
     (match-let* ([`(,ens->exprs* ,todo-ens*)
-		  (pass todo-ens ens->exprs)]
-		 [top-expr (hash-ref ens->exprs* (pack-leader (egraph-top eg)) #f)])
+      (pass todo-ens ens->exprs)]
+     [top-expr (hash-ref ens->exprs* (pack-leader (egraph-top eg)) #f)])
       (cond [top-expr top-expr]
             [((length todo-ens*) . = . (length todo-ens))
              (error "failed to extract: infinite loop.")]
