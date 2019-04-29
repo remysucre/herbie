@@ -29,8 +29,9 @@
 ;;################################################################################;;
 
 ;; Cap the number of iterations to try at this.
+
 (define *max-egraph-iters* (make-parameter 6))
-(define *node-limit* (make-parameter 500)
+(define *node-limit* (make-parameter 500))
 
 (define/contract (simplify-expr expr #:rules rls)
   (-> expr? #:rules (listof rule?) expr?)
