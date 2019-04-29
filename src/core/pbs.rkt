@@ -8,62 +8,66 @@
 (define (gen-variables eg)
   (define node->var (make-hash))
   (define pack->var (make-hash))
+  ; generate expression variables
   (define (genevar en)
     (let ([e (enode-expr en)])
-      (unless (or (not (list? e))(eq? (car e) ':) (eq? (car e) 'b+))
-        (define-symbolic* x integer?)
+      (unless (or (not (list? e)) (eq? (car e) ':) (eq? (car e) 'b+))
+        (define-symbolic* x boolean?)
         (hash-set! node->var e x))))
-  
-  #;(define (traverse-pack parent)
-    (let ([pe (enode-expr parent)])
-    (unless (or (not (list? pe))
-                (null? pe)
-                (let ([op (car (enode-expr parent))])
-                  (or (eq? op ':) (eq? op 'b+))))
-      (define-symbolic* x integer?)
-      (hash-set! node->var parent x)))
-    (for ([child (enode-children parent)])
-      (traverse-pack child)))
-  (for ([leader (egraph-leaders eg)])
-    (define-symbolic* p integer?)
-    (hash-set! pack->var leader p)
-    (for-pack! genevar leader))
+  ; generate pack variables
+  (define (genpvar pack)
+    (define-symbolic* p boolean?)
+    (hash-set! pack->var pack p)
+    (for-pack! genevar pack))
+  (map-enodes genpvar eg)
   (values node->var pack->var))
 
 (define (debugpr e) (println e) e)
 
-(define (make-assertions node-map packs-map)
+(define (make-assertions eg node-map packs-map)
+  (assert (hash-ref packs-map (pack-leader (egraph-top eg))))
   (for ([(expr bn) node-map])
-      (assert (|| (= 0 bn) (= bn 1)))
       (match expr
         [`(: ,a ,b)   (error "Binding in map")]
         [`(b+ ,m ,ds) (error "Binding in map")]
         [(list-rest 'r+ children)
-         (assert (=> (= bn 1) (apply && (map (λ (c) (= (hash-ref packs-map c) 1)) children))))]
+         (assert (=> bn (apply && (map (λ (c) (hash-ref packs-map c)) children))))]
         [(list-rest 'r* children)
-         (assert (=> (= bn 1) (apply && (map (λ (c) (= (hash-ref packs-map c) 1)) children))))]
+         (assert (=> bn (apply && (map (λ (c) (hash-ref packs-map c)) children))))]
         [`(agg ,dimensions ,tensor)
-         (assert (=> (= bn 1) (= (hash-ref packs-map tensor) 1)))]))
+         (assert (=> bn (hash-ref packs-map tensor)))]))
   (for ([(pack bq) packs-map])
-    (assert (|| (= 0 bq) (= bq 1)))
-    (let ([cs (map (lambda (c) (= (hash-ref node-map (enode-expr c) 1) 1))
+    (let ([cs (map (lambda (c) (hash-ref node-map (enode-expr c) #t))
                    (pack-members pack))])
-      (assert (=> (= bq 1) (apply || cs))))))
-    
+      (assert (=> bq (apply || cs))))))
+
+(define (toint b) (if b 1 0))
+
+(define (extractp sol pack)
+  (map (curry extracte sol) (pack-members pack)))
+
+(define (extracte sol e)
+      (match (enode-expr e)
+        [`(: ,a ,b) `(: ,a ,b)]
+        [`(b+ ,m ,ds) `(b+ ,m ,ds)]
+        [(list-rest 'r+ children)
+         (if (evaluate sol (enode-expr e)) (list 'r+ (map (curry extractp sol) children)) '())]
+        [(list-rest 'r* children)
+         (if (evaluate sol (enode-expr e)) (list 'r+ (map (curry extractp sol) children)) '())]
+        [`(agg ,dimensions ,tensor)
+         (if (evaluate sol (enode-expr e)) `(agg ,dimensions ,(extractp tensor))'())]))
 
 (define (egraph->plan eg pack-leader-to-minimze)
-  ;(define old-solver (current-solver))
-
-  ;(define ilp-solver (cplex #:path "/Applications/CPLEX_Studio129/cplex/bin/x86-64_osx/cplex"))
-  ;(current-solver ilp-solver)
   (define-values (node-map pack-map) (gen-variables eg))
-  (make-assertions node-map pack-map)
-  ;(println (hash-values node-map))
-  ;(solver-minimize ilp-solver (list (apply + (hash-values node-map))))
-  ;(asserts)
-  (define soln (optimize #:minimize (list (apply + (hash-values node-map))) #:guarantee (assert #t)))
-  ;(current-solver old-solver)
-  #;(begin (define g (mk-egraph '(r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
-                                      (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
-  (egraph->plan g (pack-leader (egraph-top g))))
-  (model soln))
+  (make-assertions eg node-map pack-map)
+  (define soln (optimize #:minimize (list (apply + (map toint (hash-values node-map))))
+                         #:guarantee (assert #t)))
+  (model soln)
+  (extractp soln (egraph-top eg)))
+
+#;(begin (define g (mk-egraph '(r* (b+ u (: a b)) (b+ u (: a b)))))
+         (define ans(egraph->plan g (pack-leader (egraph-top g)))))
+
+#;(begin (define g (mk-egraph '(r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
+                                   (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))
+         (define ans (egraph->plan g (pack-leader (egraph-top g)))))

@@ -341,4 +341,5 @@
 		(printf "node~a -> node~a[color=green]~n" id (enode-id-code cur-parent))
 		(printf "node~a -> node~a~n" (enode-id-code cur-parent) id)
 		(draw-children child)))))
-	(displayln "}"))))
+	(displayln "}")))
+(system (format "dot -Tpng -o ~a.png ~a" fp fp)))
