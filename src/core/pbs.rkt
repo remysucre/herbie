@@ -3,6 +3,7 @@
 (require "enode.rkt")
 (require "egraph.rkt")
 (require "simplify.rkt")
+(require "../syntax/rules.rkt")
 (require rosette/solver/mip/cplex)
 
 (define (gen-variables eg)
@@ -44,20 +45,20 @@
 (define (toint b) (if b 1 0))
 
 (define (extractp sol pack)
-  (map (curry extracte sol) (pack-members pack)))
+  (car (map (curry extracte sol) (pack-members pack))))
 
 (define (extracte sol e)
       (match (enode-expr e)
-        [`(: ,a ,b) `(: ,a ,b)]
-        [`(b+ ,m ,ds) `(b+ ,m ,ds)]
+        [`(: ,a ,b) `(: ,(enode-expr a) ,(enode-expr b))]
+        [`(b+ ,m ,ds) `(b+ ,(enode-expr m) ,(extractp sol ds))]
         [(list-rest 'r+ children)
-         (if (evaluate sol (enode-expr e)) (list 'r+ (map (curry extractp sol) children)) '())]
+         (if (evaluate sol (enode-expr e)) (cons 'r+ (map (curry extractp sol) children)) '())]
         [(list-rest 'r* children)
-         (if (evaluate sol (enode-expr e)) (list 'r+ (map (curry extractp sol) children)) '())]
+         (if (evaluate sol (enode-expr e)) (cons 'r* (map (curry extractp sol) children)) '())]
         [`(agg ,dimensions ,tensor)
-         (if (evaluate sol (enode-expr e)) `(agg ,dimensions ,(extractp tensor))'())]))
+         (if (evaluate sol (enode-expr e)) `(agg ,(enode-expr dimensions) ,(extractp sol tensor))'())]))
 
-(define (egraph->plan eg pack-leader-to-minimze)
+(define (egraph->plan eg)
   (define-values (node-map pack-map) (gen-variables eg))
   (make-assertions eg node-map pack-map)
   (define soln (optimize #:minimize (list (apply + (map toint (hash-values node-map))))
