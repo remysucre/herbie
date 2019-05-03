@@ -92,17 +92,17 @@
   ;; and the enode.
   (define (find-matches ens)
     (filter (negate null?)
-      (for*/list ([rl rls]
-      [en ens]
+            (for*/list ([rl rls]
+                        [en ens]
                         #:when (or (not (variable? (rule-input rl)))
                                    (equal? (dict-ref (rule-itypes rl) (rule-input rl)) (enode-type en))))
-(let ([bindings (match-e (rule-input rl) en)])
-        (if (null? bindings) '()
-      (list* rl en bindings)))
-        (if #f #;(rule-applied? en rl) '()
-      (let ([bindings (match-e (rule-input rl) en)])
-        (if (null? bindings) '()
-      (list* rl en bindings)))))))
+              (let ([bindings (match-e (rule-input rl) en)])
+                (if (null? bindings) '()
+                    (list* rl en bindings)))
+              (if (rule-applied? en rl) '()
+                  (let ([bindings (match-e (rule-input rl) en)])
+                    (if (null? bindings) '()
+                        (list* rl en bindings)))))))
 
   (define (apply-match match)
     (match-define (list rl en bindings ...) match)
@@ -126,7 +126,7 @@
     (unless (null? valid-bindings) (try-prune-enode en))
     ;; Mark this node as having this rule applied so that we don't try
     ;; to apply it again.
-    (when (subset? valid-bindings bindings-set) (rule-applied! en rl)))
+    (when (subset? bindings-set valid-bindings) (rule-applied! en rl)))
 
   (define (try-prune-enode en)
     ;; If one of the variations of the enode is a single variable or
