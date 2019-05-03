@@ -99,7 +99,7 @@
 (let ([bindings (match-e (rule-input rl) en)])
         (if (null? bindings) '()
       (list* rl en bindings)))
-        (if (rule-applied? en rl) '()
+        (if #f #;(rule-applied? en rl) '()
       (let ([bindings (match-e (rule-input rl) en)])
         (if (null? bindings) '()
       (list* rl en bindings)))))))
