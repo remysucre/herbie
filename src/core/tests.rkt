@@ -1,5 +1,18 @@
 #lang racket
 
+; TR(ABC) = TR(CA trans(B))
+(define e0 '(agg i (agg k (r* (agg j (r* (b+ A (: i j)) (b+ B (: j k)))) (b+ C (: k i))))))
+
+(define e0e '(agg j (agg k (r* (agg i (r* (b+ C (: i k)) (b+ A (: i j)))) (b+ B (: j k))))))
+
+; TR(ABC) + TR(ADC) = TR(CA(B+D)) 
+(define e1 '(r+ (agg i (agg k (r* (agg j (r* (b+ A (: i j)) (b+ B (: j k)))) (b+ C (: k i))))) (agg i (agg k (r* (agg j (r* (b+ A (: i j)) (b+ D (: j k)))) (b+ C (: k i)))))))
+
+(define e1e '(agg i (agg k (r* (b+ C (: k i)) (agg j (r* (b+ A (: j i)) (r+ (b+ B (: k j)) (b+ D (: k j)))))))))
+
+; A^16
+(define e2 '(r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A A)))))))))))))))))
+
 (define ga '(r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
                                       (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))
 
