@@ -71,7 +71,7 @@
     [(? real?) 'real]
     [(? complex?) 'complex]
     [(? constant?) (constant-info expr 'type)]
-    [(? variable?) 'real] ;; TODO: assumes variable types are real
+    [(? variable?) 'attr] ;; TODO: assumes variable types are real
     [(list 'if cond ift iff)
      (enode-type ift)]
     [(list op ens ...)

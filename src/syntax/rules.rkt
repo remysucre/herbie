@@ -109,6 +109,9 @@
   [rassoc*         (r* u (r* v x)) (r* (r* u v) x)]
   [raggorder       (agg a (agg b x)) (agg b (agg a x))]
 
+  [rident      u (c* 1 u)]
+  [ridentassoc (c* x (c* y u)) (c* (* x y) u)]
+
   [rrename1 (-/- x a a) x]
   [rrename2 (-/- (r+ u v) a b) (r+ (-/- u a b) (-/- v a b))]
   [rrename2- (r+ (-/- u a b) (-/- v a b)) (-/- (r+ u v) a b) ]
