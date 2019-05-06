@@ -14,7 +14,10 @@
 (define e2 '(r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A A))))))))))))))))
 
 ; (A + B)^2 + (A - B)^2
-(define e3 '(r+ (r* (r+ a b) (r+ a b)) (r* (r+ a (c* -1 b)) (r+ a (c* -1 b)))))
+(define e3 '(r+ (r* (r+ a b) (r+ a b)) (r* (r+ a (r* -1 b)) (r+ a (r* -1 b)))))
+
+; (A + B)^2 - (A - B)^2
+(define e3 '(r+ (r* (r+ a b) (r+ a b)) (r* -1 (r* (r+ a (r* -1 b)) (r+ a (r* -1 b))))))
 
 (define ga '(r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
                                       (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))

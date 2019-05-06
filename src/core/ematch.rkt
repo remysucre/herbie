@@ -111,6 +111,10 @@
      `(((,(cadr pat) .  ,e) (,(caddr pat) . (notin . ,e))))]
     [(equal? (car pat) 'has)
      `(((,(cadr pat) .  ,e) (,(caddr pat) . (isin . ,e))))]
+    [(equal? (car pat) 'r!)
+     (apply append
+            (for/list ([var (in-set (enode-vars e))])
+              (if (real? var) `(((,(cadr pat) .  ,e))) '())))]
     [(list? pat)
      (apply append
             (for/list ([var (in-set (enode-vars e))])

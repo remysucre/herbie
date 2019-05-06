@@ -132,7 +132,7 @@
     ;; If one of the variations of the enode is a single variable or
     ;; constant, reduce to that.
     (reduce-to-single! eg en)
-    (reduce-to-child! eg en)
+    ;(reduce-to-child! eg en)
     ;; If one of the variations of the enode chains back to itself,
     ;; prune it away. Loops in the egraph coorespond to identity
     ;; functions.
@@ -179,8 +179,8 @@
        (not (matches? constexpr `(/ 0)))
        (andmap real? (cdr constexpr)))
     (let ([res (eval-const-expr constexpr)])
-      (when (and (val-of-type type res) (exact-value? type res))
-        (reduce-to-new! eg en (val-to-type type res)))))))))
+      (when #t #;(and (val-of-type type res) (exact-value? type res))
+        (reduce-to-new! eg en res #;(val-to-type type res)))))))))
 
 (define (hash-set*+ hash assocs)
   (for/fold ([h hash]) ([assoc assocs])
