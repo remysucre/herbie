@@ -115,6 +115,27 @@
     (format "couldn't find ~a and no default implementation defined" 'operator)
     (current-continuation-marks))))
 
+(define-operator (m0) rplan
+  [fl +] [bf bf+] [ival ival-add] [cost 40]
+  [->c/double (curry format "~a + ~a")]
+  [->c/mpfr (curry format "mpfr_add(~a, ~a, ~a, MPFR_RNDN)")]
+  [->tex (curry format "~a + ~a")]
+  [nonffi +])
+
+(define-operator (id rplan) rplan
+  [fl +] [bf bf+] [ival ival-add] [cost 40]
+  [->c/double (curry format "~a + ~a")]
+  [->c/mpfr (curry format "mpfr_add(~a, ~a, ~a, MPFR_RNDN)")]
+  [->tex (curry format "~a + ~a")]
+  [nonffi +])
+
+(define-operator (c+ real rplan) rplan
+  [fl +] [bf bf+] [ival ival-add] [cost 40]
+  [->c/double (curry format "~a + ~a")]
+  [->c/mpfr (curry format "mpfr_add(~a, ~a, ~a, MPFR_RNDN)")]
+  [->tex (curry format "~a + ~a")]
+  [nonffi +])
+
 (define-operator (c* real rplan) rplan
   [fl +] [bf bf+] [ival ival-add] [cost 40]
   [->c/double (curry format "~a + ~a")]

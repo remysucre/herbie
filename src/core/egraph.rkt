@@ -8,7 +8,7 @@
 	 merge-egraph-nodes!
 	 egraph? egraph-cnt egraph-top
 	 map-enodes draw-egraph egraph-leaders
-         elim-enode-loops! reduce-to-single! reduce-to-new!
+         elim-enode-loops! reduce-to-single! reduce-to-child! reduce-to-new!
          dedup-vars!
          )
 
@@ -179,12 +179,12 @@
     ;; Now that we know which one became leader, we can bind these.
     (define-values (leader follower follower-old-vars)
       (if (eq? l1 merged-en)
-          (values l1 l2 old-vars1)
-          (values l2 l1 old-vars2)))
+          (values l1 l2 old-vars2)
+          (values l2 l1 old-vars1)))
 
     ;; Get the expressions which mention the follower so we can see if
     ;; their new form causes new merges.
-    (define iexprs (hash-ref leader->iexprs follower))
+    (define iexprs (begin #;(println 'ie) (hash-ref leader->iexprs follower)))
 
     ;; Once we've merged these enodes, other ones might have become
     ;; equivalent. For example, if we had an enode which had the
@@ -194,9 +194,9 @@
     (define to-merge
       (for/append ([iexpr (in-mutable-set iexprs)])
         (define replaced-iexpr (update-en-expr iexpr))
-        (define other-parent (hash-ref expr->parent replaced-iexpr #f))
+        (define other-parent (begin #;(println 'op) (hash-ref expr->parent replaced-iexpr #f)))
         (if other-parent
-            (list (cons other-parent (hash-ref expr->parent iexpr)))
+            (list (cons other-parent (begin #;(println 'pie) (hash-ref expr->parent iexpr))))
             '())))
 
     ;; Now that we have extracted all the information we need from the
@@ -326,6 +326,22 @@
 	  ;; Verify
 	  (check-egraph-valid eg #:loc 'elimed-loops)
 	  #t))))
+
+(define (reduce-to-child! eg en)
+  (when (for/or ([var (in-set (enode-vars en))])
+          (match var
+            [(list op children ...) (for/or ([c children]) (equal? c (pack-leader en)))]
+            [_ #f]))
+    (let* ([leader (pack-leader en)]
+           [old-vars (for/mutable-set ([var (in-set (enode-vars leader))])
+                                      (update-en-expr var))]
+           [leader* (pack-filter! (λ (inner-en)
+                                    (match (enode-expr inner-en)
+                                      [(list op children ...) (not (for/or ([c children]) (equal? c leader)))]
+                                      [_ #t]))
+                                  leader)])
+      (when (not (eq? leader leader*))
+        (update-leader! eg old-vars leader leader*)))))
 
 ;; If there are any variations of this enode that are a single
 ;; constant or variable, prune to that.

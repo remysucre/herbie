@@ -28,7 +28,8 @@
   (for ([(en bn) node-map])
       (match (enode-expr en)
         [(? symbol?) (void)]
-        [(list op ens ...)
+        [(? real?) (void)]
+        [(list op ens ...) (println op)
          (assert (=> bn (apply && (map (λ (c) (hash-ref packs-map (pack-leader c))) ens))))]))
   (for ([(pack bq) packs-map])
     (let ([cs (map (curry hash-ref node-map) (pack-members pack))])
@@ -51,6 +52,7 @@
   (define (extracte e)
     (match (enode-expr e)
       [(? symbol?) (enode-expr e)]
+      [(? real?) (enode-expr e)]
       [(list op ens ...) (cons op (map extractp ens))]))
 
   ;(map (lambda (k) (evaluate k soln)) (hash-values pack-map) )

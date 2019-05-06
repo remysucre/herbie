@@ -132,6 +132,7 @@
     ;; If one of the variations of the enode is a single variable or
     ;; constant, reduce to that.
     (reduce-to-single! eg en)
+    (reduce-to-child! eg en)
     ;; If one of the variations of the enode chains back to itself,
     ;; prune it away. Loops in the egraph coorespond to identity
     ;; functions.

@@ -11,7 +11,10 @@
 (define e1e '(agg i (agg k (r* (b+ C (: k i)) (agg j (r* (b+ A (: j i)) (r+ (b+ B (: k j)) (b+ D (: k j)))))))))
 
 ; A^16
-(define e2 '(r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A A)))))))))))))))))
+(define e2 '(r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A (r* A A))))))))))))))))
+
+; (A + B)^2 + (A - B)^2
+(define e3 '(r+ (r* (r+ a b) (r+ a b)) (r* (r+ a (c* -1 b)) (r+ a (c* -1 b)))))
 
 (define ga '(r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
                                       (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))
