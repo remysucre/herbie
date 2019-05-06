@@ -328,20 +328,13 @@
 	  #t))))
 
 (define (reduce-to-child! eg en)
-  (when (for/or ([var (in-set (enode-vars en))])
-          (match var
-            [(list op children ...) (for/or ([c children]) (equal? c (pack-leader en)))]
-            [_ #f]))
-    (let* ([leader (pack-leader en)]
-           [old-vars (for/mutable-set ([var (in-set (enode-vars leader))])
-                                      (update-en-expr var))]
-           [leader* (pack-filter! (λ (inner-en)
-                                    (match (enode-expr inner-en)
-                                      [(list op children ...) (not (for/or ([c children]) (equal? c leader)))]
-                                      [_ #t]))
-                                  leader)])
-      (when (not (eq? leader leader*))
-        (update-leader! eg old-vars leader leader*)))))
+  (for ([n (pack-members en)])
+        (for ([n2 (pack-members en)]
+              #:when (match (enode-expr n)
+                       [(list op children ...)
+                        (for/or ([c children]) (equal? c n2))]
+                       [_ #f]))
+              (set-enode-expr! n (enode-expr n2)))))
 
 ;; If there are any variations of this enode that are a single
 ;; constant or variable, prune to that.
