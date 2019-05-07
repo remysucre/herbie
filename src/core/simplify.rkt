@@ -11,7 +11,7 @@
 
 (require errortrace)
 
-(provide one-iter simplify-expr *max-egraph-iters*)
+(provide one-iter simplify-expr *max-egraph-iters* egraph-size egraph-size-dd )
 
 (module+ test (require rackunit))
 

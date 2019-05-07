@@ -9,7 +9,7 @@
 	 egraph? egraph-cnt egraph-top
 	 map-enodes draw-egraph egraph-leaders
          elim-enode-loops! reduce-to-single! reduce-to-new!
-         dedup-vars!
+         dedup-vars! egraph-size egraph-size-dd 
          )
 
 (provide (all-defined-out)
@@ -367,6 +367,12 @@
                                      (equal? (enode-expr inner-en) expr)]))
                                 leader))
   (update-leader! eg vars leader leader*))
+
+(define (egraph-size eg)
+  (foldr + 0 (map (compose length pack-members) (egraph-leaders eg))))
+
+(define (egraph-size-dd eg)
+  (foldr + 0 (map (compose length (lambda (p) (remove-duplicates p #:key enode-expr)) pack-members) (egraph-leaders eg))))
 
 ;; Draws a representation of the egraph to the output file specified
 ;; in the DOT format.
