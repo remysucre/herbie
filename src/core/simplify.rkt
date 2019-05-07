@@ -123,15 +123,15 @@
     (for ([binding valid-bindings])
       (merge-egraph-nodes! eg en (substitute-e eg (rule-output rl) binding)))
     ;; Prune the enode if we can
-    (unless (null? valid-bindings) (try-prune-enode en))
+    ; (unless (null? valid-bindings) (try-prune-enode en))
     ;; Mark this node as having this rule applied so that we don't try
     ;; to apply it again.
     (when (subset? bindings-set valid-bindings) (rule-applied! en rl)))
 
-  (define (try-prune-enode en)
+  #;(define (try-prune-enode en)
     ;; If one of the variations of the enode is a single variable or
     ;; constant, reduce to that.
-    (reduce-to-single! eg en)
+    ;; (reduce-to-single! eg en)
     ;; If one of the variations of the enode chains back to itself,
     ;; prune it away. Loops in the egraph coorespond to identity
     ;; functions.
@@ -139,7 +139,7 @@
 
   (for ([m (find-matches (egraph-leaders eg))])
     (apply-match m))
-  (map-enodes (curry set-precompute! eg) eg)
+  ;(map-enodes (curry set-precompute! eg) eg)
   (void))
 
 (define-syntax-rule (matches? expr pattern)
@@ -178,8 +178,8 @@
        (not (matches? constexpr `(/ 0)))
        (andmap real? (cdr constexpr)))
     (let ([res (eval-const-expr constexpr)])
-      (when (and (val-of-type type res) (exact-value? type res))
-        (reduce-to-new! eg en (val-to-type type res)))))))))
+      (when #t #;(and (val-of-type type res) (exact-value? type res))
+        (reduce-to-new! eg en res #;(val-to-type type res)))))))))
 
 (define (hash-set*+ hash assocs)
   (for/fold ([h hash]) ([assoc assocs])

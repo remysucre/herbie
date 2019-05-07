@@ -111,6 +111,13 @@
      `(((,(cadr pat) .  ,e) (,(caddr pat) . (notin . ,e))))]
     [(equal? (car pat) 'has)
      `(((,(cadr pat) .  ,e) (,(caddr pat) . (isin . ,e))))]
+    #;[(equal? (car pat) 'r!)
+     (call/ec
+      (λ (k)
+        (for ([var (in-set (enode-vars e))])
+          (when (constant? var) 
+            (k `(((,(cadr pat) . ,e))))))
+        '()))]
     [(list? pat)
      (apply append
             (for/list ([var (in-set (enode-vars e))])
@@ -136,7 +143,23 @@
      (mk-enode! eg pat)]
     [(equal? pat 'freshname!)
      (mk-enode! eg (gensym))]
-    [(variable? pat) 
+    [(equal? pat 'fold*)
+     (let* ([xn (cdr (assoc 'xconstant bindings))]
+            [yn (cdr (assoc 'yconstant bindings))]
+            [x (enode-expr xn)]
+            [y (enode-expr yn)])
+       (if (and (constant? x) (constant? y))
+           (mk-enode! eg (* x y))
+           (mk-enode! eg `(r* ,xn ,yn))))]
+    [(equal? pat 'fold+)
+     (let* ([xn (cdr (assoc 'xconstant bindings))]
+            [yn (cdr (assoc 'yconstant bindings))]
+            [x (enode-expr xn)]
+            [y (enode-expr yn)])
+       (if (and (constant? x) (constant? y))
+           (mk-enode! eg (+ x y))
+           (mk-enode! eg `(r+ ,xn ,yn))))]
+    [(variable? pat)
      (let ([binden (cdr (assoc pat bindings))]) 
        binden)]
     [(foundit? pat) (println (cadr pat))]

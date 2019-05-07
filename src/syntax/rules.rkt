@@ -5,7 +5,7 @@
 (require "../common.rkt")
 (require "syntax.rkt")
 
-(provide (struct-out rule) *rules* *simplify-rules*
+(provide (struct-out rule) *rules* *ra-rules* *simplify-rules*
          *fp-safe-simplify-rules* prune-rules!)
 
 (struct rule (name input output itypes) ; Input and output are patterns
@@ -97,7 +97,7 @@
   [sub-neg.c           (-.c a b)                 (+.c a (neg.c b))]
   [unsub-neg.c         (+.c a (neg.c b))           (-.c a b)])
 
-(define-ruleset radistributivity (arithmetic simplify)
+(define-ruleset radistributivity (arithmetic ra)
   #:type ([u rplan] [v rplan] [x rplan] [a attr] [b attr] [c attr] [d attr])
   [rdistribute*    (r* x (r+ u v)) (r+ (r* x u) (r* x v))]
   [rdistribute*-   (r+ (r* x u) (r* x v)) (r* x (r+ u v))]
@@ -127,9 +127,24 @@
   [rrename11 (-/- (hasnt c a) a b) c]
   [swapattr (: i j) (: j i)]
 
+  ;[rident      (r+ (r! x) (r! y)) (+ x y)]
+  ;[rident      (r* (r! x) (r! y)) (* x y)]
+  [rident      (r+ xconstant yconstant) fold+]
+  [rident      (r* xconstant yconstant) fold*]
+  [rident      (r+ 0 u) u]
+  [rident      (r* 0 u) 0]
+  [rident      (r* 1 u) u]
+
+  [rident      (r+ u u) (r* 2 u)]
+  [rident      (r+ u (r* x u )) (r* (r+ 1 x) u)]
+
   [raggcond3     (r* (hasnt u a) (agg a v)) (agg a (r* u v))]
   [raggcond3-    (agg a (r* (hasnt u a) v)) (r* u (agg a v))]
   [raggrename    (r* (has u a) (agg a v)) (rename)]
+  [foundit0 (r+ (c* 2 (r* a a)) (c* 2 (r* b b))) (foundit o)]
+  ;[foundit0 (r+ (r* a a) (r+ (r* 2 (r* a b)) (r* b b))) (foundit a)]
+  ;[foundit0 (r+ (r* a a) (r+ (r* -2 (r* a b)) (r* b b))) (foundit b)]
+  [foundit1 (c* 4 (r* a b)) (foundit q)]
   ;;[founditba (agg b (agg (hasnt d b) (r* (r* (b+ u (: a b)) (b+ v (: c b))) (r* (b+ u (: a d)) (b+ v (: c d)))))) (foundit b)]
   ;;[foundita (agg a (agg c (r+ (r+ (r* (b+ x (: a c)) (b+ x (: a c))) (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))) (r+ (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))) (r* (agg b (r* (b+ u (: a b)) (b+ v (: c b)))) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))) (foundit a)]
   #;[founditb (r+ (r+ (agg a (agg c (r* (b+ x (: a c)) (b+ x (: a c))))) (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b)))))))) (r+ (agg a (agg c (r* (b+ x (: a c)) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))) (agg a (agg c (r* (agg b (r* (b+ u (: a b)) (b+ v (: c b)))) (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))))) (foundit b)]
@@ -700,9 +715,17 @@
   (for/append ([rec (*rulesets*)])
     (match-define (list rules groups _) rec)
     (if (and (ormap (curry flag-set? 'rules) groups)
-             (set-member? groups 'simplify))
+             (set-member? groups 'ra))
         rules
         '())))
+
+(define (*ra-rules*)
+  (for/append ([rec (*rulesets*)])
+              (match-define (list rules groups _) rec)
+              (if (and (ormap (curry flag-set? 'rules) groups)
+                       (set-member? groups 'ra))
+                  rules
+                  '())))
 
 (define (*fp-safe-simplify-rules*)
   (for/append ([rec (*rulesets*)])
