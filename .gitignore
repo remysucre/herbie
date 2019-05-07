@@ -17,3 +17,5 @@ demo.log
 *.class
 cost
 previous
+*.png
+src/core/thing
