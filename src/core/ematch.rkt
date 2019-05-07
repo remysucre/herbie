@@ -139,7 +139,7 @@
 
 (define (substitute-e eg pat bindings)
   (cond
-    [(constant? pat) 
+    [(constant? pat)
      (mk-enode! eg pat)]
     [(equal? pat 'freshname!)
      (mk-enode! eg (gensym))]

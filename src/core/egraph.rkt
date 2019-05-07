@@ -7,7 +7,7 @@
 (provide mk-enode! mk-egraph
 	 merge-egraph-nodes!
 	 egraph? egraph-cnt egraph-top
-	 map-enodes draw-egraph egraph-leaders
+	 map-enodes draw-egraph alt-draw-egraph egraph-leaders
          elim-enode-loops! reduce-to-single! reduce-to-new!
          dedup-vars! egraph-size egraph-size-dd 
          )
@@ -179,8 +179,8 @@
     ;; Now that we know which one became leader, we can bind these.
     (define-values (leader follower follower-old-vars)
       (if (eq? l1 merged-en)
-          (values l1 l2 old-vars1)
-          (values l2 l1 old-vars2)))
+          (values l1 l2 old-vars2)
+          (values l2 l1 old-vars1)))
 
     ;; Get the expressions which mention the follower so we can see if
     ;; their new form causes new merges.
@@ -386,6 +386,36 @@
 
 	  (printf "node~a[label=\"NODE ~a\"]\n" id id)
 	  (for ([varen (remove-duplicates (pack-members en) #:key enode-expr)]
+		[vid (in-naturals)])
+            (define var (enode-expr varen))
+	    (printf "node~avar~a[label=\"~a\",shape=box,color=blue]\n"
+		    id vid (if (list? var) (car var) var))
+	    (printf "node~a -> node~avar~a[style=dashed]\n"
+		    id id vid)
+            (when (list? var)
+              (define n (length (cdr var)))
+              (for ([arg (cdr var)] [i (in-naturals)])
+	        (printf "node~avar~a -> node~a[tailport=~a]\n"
+                        id vid
+                        (enode-pid arg)
+                        (cond
+                          [(= i 0) "sw"]
+                          [(= i (- n 1)) "se"]
+                          [else "s"])
+                        )))))
+	(printf "}\n")))
+  (system (format "dot -Tpng -o ~a.png ~a" fp fp)))
+
+(define (alt-draw-egraph eg fp)
+  (with-output-to-file
+      fp #:exists 'replace
+      (λ ()
+	(printf "digraph {\n")
+	(for ([en (egraph-leaders eg)])
+          (define id (enode-pid en))
+
+	  (printf "node~a[label=\"NODE ~a\"]\n" id id)
+	  (for ([varen (pack-members en)]
 		[vid (in-naturals)])
             (define var (enode-expr varen))
 	    (printf "node~avar~a[label=\"~a\",shape=box,color=blue]\n"

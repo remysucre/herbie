@@ -129,14 +129,14 @@
 
   ;[rident      (r+ (r! x) (r! y)) (+ x y)]
   ;[rident      (r* (r! x) (r! y)) (* x y)]
-  [rident      (r+ xconstant yconstant) fold+]
-  [rident      (r* xconstant yconstant) fold*]
-  [rident      (r+ 0 u) u]
-  [rident      (r* 0 u) 0]
-  [rident      (r* 1 u) u]
+  [rident+      (r+ xconstant yconstant) fold+]
+  [rident*      (r* xconstant yconstant) fold*]
+  [rident+0      (r+ 0 u) u]
+  [rident*0      (r* 0 u) 0]
+  [rident*1      (r* 1 u) u]
 
-  [rident      (r+ u u) (r* 2 u)]
-  [rident      (r+ u (r* x u )) (r* (r+ 1 x) u)]
+  [rident*2      (r+ u u) (r* 2 u)]
+  [rident+1      (r+ u (r* x u )) (r* (r+ 1 x) u)]
 
   [raggcond3     (r* (hasnt u a) (agg a v)) (agg a (r* u v))]
   [raggcond3-    (agg a (r* (hasnt u a) v)) (r* u (agg a v))]

@@ -1,7 +1,5 @@
 #lang racket
 
-
-
 (require "../common.rkt")
 (require "../programs.rkt")
 (require "../syntax/rules.rkt")
@@ -11,7 +9,7 @@
 
 (require errortrace)
 
-(provide one-iter simplify-expr *max-egraph-iters* egraph-size egraph-size-dd )
+(provide one-iter simplify-expr *max-egraph-iters* alt-draw-egraph egraph-size egraph-size-dd )
 
 (module+ test (require rackunit))
 
@@ -106,7 +104,7 @@
 
   (define (apply-match match)
     (match-define (list rl en bindings ...) match)
-    ;(pretty-print rl)
+    (pretty-print rl)
 
     ;; These next two lines are here because an earlier match
     ;; application may have pruned the tree, invalidating the this
