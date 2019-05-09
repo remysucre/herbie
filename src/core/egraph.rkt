@@ -155,6 +155,7 @@
 ;; the leaders of en1 and en2, but the values of those mapping are
 ;; not.
 (define (merge-egraph-nodes! eg en1 en2)
+  (println (cons en1 en2))
   (match-define (egraph _ _ leader->iexprs expr->parent) eg)
   ;; Operate on the pack leaders in case we were passed a non-leader
   (define l1 (pack-leader en1))
@@ -370,6 +371,12 @@
 
 (define (egraph-size eg)
   (foldr + 0 (map (compose length pack-members) (egraph-leaders eg))))
+
+(define (show-egraph eg)
+  (for ([p (egraph-leaders eg)])
+    (for ([n (pack-members p)])
+      (println n)
+      (println (enode-expr n)))))
 
 (define (egraph-size-dd eg)
   (foldr + 0 (map (compose length (lambda (p) (remove-duplicates p #:key enode-expr)) pack-members) (egraph-leaders eg))))

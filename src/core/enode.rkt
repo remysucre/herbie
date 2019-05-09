@@ -71,7 +71,7 @@
     [(? real?) 'real]
     [(? complex?) 'complex]
     [(? constant?) (constant-info expr 'type)]
-    [(? variable?) 'real] ;; TODO: assumes variable types are real
+    [(? variable?) 'rplan] ;; TODO: assumes variable types are real
     [(list 'if cond ift iff)
      (enode-type ift)]
     [(list op ens ...)
@@ -216,7 +216,7 @@
   (let ([expr (enode-expr en)])
     (assert (or (number? expr) (symbol? expr)
 		(and (list? expr) (symbol? (car expr))
-		     (ormap enode? (cdr expr)))) #:loc location))
+		     (andmap enode? (cdr expr)))) #:loc location))
   ;; Checks that the depth is positive.
   (assert (positive? (enode-depth en)) #:loc location))
 

@@ -129,6 +129,8 @@
 
   ;[rident      (r+ (r! x) (r! y)) (+ x y)]
   ;[rident      (r* (r! x) (r! y)) (* x y)]
+  [mident       x (r* x (mi))]
+  [mident-      (r* x (mi)) x]
   [rident+      (r+ xconstant yconstant) fold+]
   [rident*      (r* xconstant yconstant) fold*]
   [rident+0      (r+ 0 u) u]

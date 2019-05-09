@@ -19,6 +19,8 @@
 ; (A + B)^2 - (A - B)^2
 (define e3 '(r+ (r* (r+ a b) (r+ a b)) (r* -1 (r* (r+ a (r* -1 b)) (r+ a (r* -1 b))))))
 
+; A^2 + 2A + I
+
 (define ga '(r* (agg b (r* (b+ u (: a b)) (b+ v (: c b))))
                                       (agg b (r* (b+ u (: a b)) (b+ v (: c b))))))
 

@@ -104,7 +104,7 @@
 
   (define (apply-match match)
     (match-define (list rl en bindings ...) match)
-    (pretty-print rl)
+    ;(pretty-print rl)
 
     ;; These next two lines are here because an earlier match
     ;; application may have pruned the tree, invalidating the this
@@ -119,7 +119,11 @@
 
 
     (for ([binding valid-bindings])
-      (merge-egraph-nodes! eg en (substitute-e eg (rule-output rl) binding)))
+      (let ([ne (substitute-e eg (rule-output rl) binding)])
+        (println 'new)
+        (println ne)
+        (println (enode-expr ne))
+        (merge-egraph-nodes! eg en ne)))
     ;; Prune the enode if we can
     ; (unless (null? valid-bindings) (try-prune-enode en))
     ;; Mark this node as having this rule applied so that we don't try
